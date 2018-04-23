@@ -8,7 +8,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const scoreBoardRouter = module.exports = Router();
 
-scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, function(req, res, next) {
+scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboards/:leagueID');
   
   ScoreBoard.find({ leagueID: req.params.leagueID }).populate({path: 'userID', select: 'username'}) 
@@ -20,7 +20,7 @@ scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, function(req, res
     .catch(next);
 });
 
-scoreBoardRouter.get('/api/scoreboard/:scoreBoardId', bearerAuth, function(req, res, next) {
+scoreBoardRouter.get('/api/scoreboard/:scoreBoardId', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboard/:scoreBoardId');
 
   ScoreBoard.findById(req.params.scoreBoardId)
@@ -28,7 +28,7 @@ scoreBoardRouter.get('/api/scoreboard/:scoreBoardId', bearerAuth, function(req, 
     .catch(next);
 });
 
-scoreBoardRouter.get('/api/scoreboards', bearerAuth, function(req, res, next) {
+scoreBoardRouter.get('/api/scoreboards', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboards');
 
   ScoreBoard.find()

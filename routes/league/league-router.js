@@ -1,7 +1,6 @@
 'use strict';
 
-const Router = require('express').Router;
-const jsonParser = require('body-parser').json();
+const { Router, json } = require('express');
 const debug = require('debug')('bracketbusters:league-router');
 const createError = require('http-errors');
 
@@ -16,7 +15,7 @@ const leagueRouter = module.exports = Router();
 
 
 // http POST :3000/api/sportingevent/5aa72ffd589c3d4ce00ed2aa/league 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjdjZjNjNTExYTIxZGUxNmUxZTM5MjBkZDNiNGI4NGZmOTJlZTZkMDA0OWRjMTMyOWZmMzkwYzNhZGUwYmYwZmMiLCJpYXQiOjE1MjA5OTQxODV9.ZdivKHeGH9rDklclxKal3u2GylQeDJiaor4f2bsWcpA' leagueName='aaaawfaaaaa' privacy='a' poolSize=0 scoring='regular'
-leagueRouter.post('/api/sportingevent/:sportingeventId/league', bearerAuth, jsonParser, function(req, res, next) {
+leagueRouter.post('/api/sportingevent/:sportingeventId/league', bearerAuth, json(), (req, res, next) => {
   debug(`POST: /api/sportingevent/:sportingeventId/league`);
 
   if (!req.body.leagueName || !req.body.scoring || !req.body.poolSize || !req.body.privacy) return next(createError(400, 'expected a request body  leagueName, sportingeventID, owner, scoring, poolSize and privacy'));
@@ -48,7 +47,7 @@ leagueRouter.post('/api/sportingevent/:sportingeventId/league', bearerAuth, json
 });
 
 // http PUT :3000/api/league/5aa757d3c73ef35216478a19/adduser 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjFjZjdjNDQwYTFkMmVhYTU3YTE1YmFmZDBmODA0NzFjZGFmNmUxY2FkZGVhYTA4YzE5M2E2NzkyM2JmMzY2ZDQiLCJpYXQiOjE1MjA5ODU0MjJ9.kdf9mPwEf8ROhg7iWfc8O-QxUXtK89D_-EL3goD0sWk'
-leagueRouter.put('/api/league/:leagueId/adduser', bearerAuth, jsonParser, function(req, res, next) {
+leagueRouter.put('/api/league/:leagueId/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueId/adduser');
 
   return League.findById(req.params.leagueId)
@@ -83,7 +82,7 @@ leagueRouter.put('/api/league/:leagueId/adduser', bearerAuth, jsonParser, functi
 });
 
 // add user to private league
-leagueRouter.post('/api/league/private/adduser', bearerAuth, jsonParser, function(req, res, next) {
+leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/league/private/adduser');
   console.log('req.body: ', req.body);
 
@@ -120,7 +119,7 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, jsonParser, functio
 });
 
 // http PUT :3000/api/league/5aa757d3c73ef35216478a19/removeuser 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjFjZjdjNDQwYTFkMmVhYTU3YTE1YmFmZDBmODA0NzFjZGFmNmUxY2FkZGVhYTA4YzE5M2E2NzkyM2JmMzY2ZDQiLCJpYXQiOjE1MjA5ODU0MjJ9.kdf9mPwEf8ROhg7iWfc8O-QxUXtK89D_-EL3goD0sWk'
-leagueRouter.put('/api/league/:leagueId/removeuser', bearerAuth, jsonParser, function(req, res, next) {
+leagueRouter.put('/api/league/:leagueId/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueId/removeuser');
 
   return League.findById(req.params.leagueId)
@@ -158,7 +157,7 @@ leagueRouter.put('/api/league/:leagueId/removeuser', bearerAuth, jsonParser, fun
 });
 
 // http PUT :3000/api/league/5aa887b2d44b366965f91909 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjdjZjNjNTExYTIxZGUxNmUxZTM5MjBkZDNiNGI4NGZmOTJlZTZkMDA0OWRjMTMyOWZmMzkwYzNhZGUwYmYwZmMiLCJpYXQiOjE1MjA5OTQxODV9.ZdivKHeGH9rDklclxKal3u2GylQeDJiaor4f2bsWcpA'
-leagueRouter.put('/api/league/:leagueId', bearerAuth, jsonParser, function(req, res, next) {
+leagueRouter.put('/api/league/:leagueId', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueId');
 
   if (!req.body) return next(createError(400, 'expected a request body'));
@@ -171,7 +170,7 @@ leagueRouter.put('/api/league/:leagueId', bearerAuth, jsonParser, function(req, 
     .catch(next);
 });
 
-leagueRouter.get('/api/league/:leagueId', bearerAuth, function(req, res, next) {
+leagueRouter.get('/api/league/:leagueId', bearerAuth, (req, res, next) => {
   debug('GET: /api/league/:leagueId');
 
   console.log('req.params: ', req.params.leagueId);
@@ -180,7 +179,7 @@ leagueRouter.get('/api/league/:leagueId', bearerAuth, function(req, res, next) {
     .catch(next);
 });
 
-leagueRouter.get('/api/leagues', bearerAuth, function(req, res, next) {
+leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
   debug('GET: /api/leagues');
 
   League.find()
@@ -189,7 +188,7 @@ leagueRouter.get('/api/leagues', bearerAuth, function(req, res, next) {
 });
 
 // http DELETE :3000/api/league/5aa757d3c73ef35216478a19 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjBlOGUzNDZiMWMzYzllNzM0YjJhMzE4ZjMwMDA5NWNjZTFkNGQyNjA2OGM2ZTJhMzI4N2M1Y2MzZjFjMDI2M2IiLCJpYXQiOjE1MjA5OTY0OTh9.oicba8S1vhkLI4JLjn0ZZXa68cf-zoAQ6Noq9H6zTs0'
-leagueRouter.delete('/api/league/:leagueId', bearerAuth, function(req, res, next) {
+leagueRouter.delete('/api/league/:leagueId', bearerAuth, (req, res, next) => {
   debug('DELETE: /api/league/:leagueId');
   return League.findById(req.params.leagueId)
     .then( league => {
@@ -211,7 +210,7 @@ leagueRouter.delete('/api/league/:leagueId', bearerAuth, function(req, res, next
     .catch(next);
 });
 
-leagueRouter.get('/api/leagueNames/:leagueName', function (req, res, next) {
+leagueRouter.get('/api/leagueNames/:leagueName', (req, res, next) => {
   debug('GET: /api/leagueNames/:leagueName');
 
   League.findOne({ leagueName: req.params.leagueName })
@@ -225,7 +224,7 @@ leagueRouter.get('/api/leagueNames/:leagueName', function (req, res, next) {
 });
 
 // returns all leagues of logged in user
-leagueRouter.post('/api/leagues/user', bearerAuth, jsonParser, function(req, res, next) {
+leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/leagues/user');
 
   League.find( { _id: { $in: req.body} } )
@@ -234,7 +233,7 @@ leagueRouter.post('/api/leagues/user', bearerAuth, jsonParser, function(req, res
 });
 
 // returns all public leagues
-leagueRouter.get('/api/leagues/allpublic', bearerAuth, function(req, res, next) {
+leagueRouter.get('/api/leagues/allpublic', bearerAuth, (req, res, next) => {
   debug('GET: /api/leagues/allpublic');
   
   League.find({ privacy: 'public' })

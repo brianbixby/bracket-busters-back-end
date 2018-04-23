@@ -1,7 +1,6 @@
 'use strict';
 
-const Router = require('express').Router;
-const jsonParser = require('body-parser').json();
+const { Router, json } = require('express');
 const debug = require('debug')('bracketbusters:group-router');
 const createError = require('http-errors');
 
@@ -13,7 +12,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 const groupRouter = module.exports = Router();
 
 // http POST :3000/api/group 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Ijk3OTZmOGMzNjI2NDhhMDM0YzNkMzg1YmU4MjIyNTFkZTUyYTBmNTY4NWI5ZDM4ODg3NTNkMjUwZjljMjFhODkiLCJpYXQiOjE1MjEwMDQ3OTB9.I_xZOfe87-EQWz_vnHzHCSO26bWtarNeheEM18I_wEA' groupName='newgroupasfd' privacy='aewf'
-groupRouter.post('/api/group', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/group');
 
   if (!req.body.groupName || !req.body.privacy) return next(createError(400, 'expected a request body groupName, privacy'));
@@ -39,7 +38,7 @@ groupRouter.post('/api/group', bearerAuth, jsonParser, function(req, res, next) 
 }); 
 
 // http PUT :3000/api/group/5aa8b142eb28637009a35fe3/adduser 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjZiZjIwNzZkOWI0MThlMTcwN2VjNzU1NWY3MWM2YTRhYTQxYThlYjJhZmZmZjg3YzEzNzlmMjhiMjgxZDUzNTQiLCJpYXQiOjE1MjEwMDUwNjF9.QFL8nK6rS-_sDfD9XdZFhXcnXR75zMdKNKTjQl_8T_4'
-groupRouter.put('/api/group/:groupId/adduser', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId/adduser');
 
   return Group.findById(req.params.groupId)
@@ -63,7 +62,7 @@ groupRouter.put('/api/group/:groupId/adduser', bearerAuth, jsonParser, function(
 });
 
 // add user to private group
-groupRouter.post('/api/group/private/adduser', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/private/adduser');
   console.log('req.body: ', req.body);
 
@@ -88,7 +87,7 @@ groupRouter.post('/api/group/private/adduser', bearerAuth, jsonParser, function(
 });
 
 // http PUT :3000/api/group/5aa8b142eb28637009a35fe3/removeuser 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjZiZjIwNzZkOWI0MThlMTcwN2VjNzU1NWY3MWM2YTRhYTQxYThlYjJhZmZmZjg3YzEzNzlmMjhiMjgxZDUzNTQiLCJpYXQiOjE1MjEwMDUwNjF9.QFL8nK6rS-_sDfD9XdZFhXcnXR75zMdKNKTjQl_8T_4'
-groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId/removeuser');
 
   return Group.findById(req.params.groupId)
@@ -111,7 +110,7 @@ groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, jsonParser, functi
 });
 
 // http PUT :3000/api/group/5aa8b142eb28637009a35fe3 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Ijk3OTZmOGMzNjI2NDhhMDM0YzNkMzg1YmU4MjIyNTFkZTUyYTBmNTY4NWI5ZDM4ODg3NTNkMjUwZjljMjFhODkiLCJpYXQiOjE1MjEwMDQ3OTB9.I_xZOfe87-EQWz_vnHzHCSO26bWtarNeheEM18I_wEA'
-groupRouter.put('/api/group/:groupId', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.put('/api/group/:groupId', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId');
   let groupProperties = req.body.groupName || req.body.privacy || req.body.size || req.body.motto || req.body.createdOn || req.body.image || req.body.owner || req.body.password || req.body.users || req.body.tags;
   if (!groupProperties) return next(createError(400, 'expected a request body'));
@@ -125,7 +124,7 @@ groupRouter.put('/api/group/:groupId', bearerAuth, jsonParser, function(req, res
 });
 
 // http DELETE :3000/api/group/5aa8b142eb28637009a35fe3 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Ijk3OTZmOGMzNjI2NDhhMDM0YzNkMzg1YmU4MjIyNTFkZTUyYTBmNTY4NWI5ZDM4ODg3NTNkMjUwZjljMjFhODkiLCJpYXQiOjE1MjEwMDQ3OTB9.I_xZOfe87-EQWz_vnHzHCSO26bWtarNeheEM18I_wEA'
-groupRouter.delete('/api/group/:groupId', bearerAuth, function(req, res, next) {
+groupRouter.delete('/api/group/:groupId', bearerAuth, (req, res, next) => {
   debug('DELETE: /api/group/:groupId');
 
   return Group.findById(req.params.groupId)
@@ -149,7 +148,7 @@ groupRouter.delete('/api/group/:groupId', bearerAuth, function(req, res, next) {
 });
 
 // RETURNS 1 SPECIFIC GROUP
-groupRouter.get('/api/group/:groupId', bearerAuth, function(req, res, next) {
+groupRouter.get('/api/group/:groupId', bearerAuth, (req, res, next) => {
   debug('GET: /api/group/:groupId');
 
   Group.findById(req.params.groupId)
@@ -158,7 +157,7 @@ groupRouter.get('/api/group/:groupId', bearerAuth, function(req, res, next) {
 });
 
 // returns all groups
-groupRouter.get('/api/groups', bearerAuth, function(req, res, next) {
+groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
   debug('GET: /api/groups');
 
   Group.find()
@@ -180,7 +179,7 @@ groupRouter.get('/api/groupNames/:groupName', function (req, res, next) {
 });
 
 // returns all public groups
-groupRouter.get('/api/groups/all/public', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {
   debug('GET: /api/groups/allpublic');
   console.log('all public groups server route hit');
   Group.find({ privacy: 'public' })
@@ -192,7 +191,7 @@ groupRouter.get('/api/groups/all/public', bearerAuth, jsonParser, function(req, 
 });
 
 // returns all leagues of logged in user
-groupRouter.post('/api/groups/user', bearerAuth, jsonParser, function(req, res, next) {
+groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/groups/user');
   console.log('req.body: ', req.body);
 
