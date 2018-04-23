@@ -1,7 +1,7 @@
 'use strict';
 
 const Router = require('express').Router;
-const debug = require('debug')('sportsapp:scoreBoard-router');
+const debug = require('debug')('bracketbusters:scoreBoard-router');
 
 const ScoreBoard = require('../../model/league/scoreBoard.js');
 const bearerAuth = require('../../lib/bearer-auth-middleware.js');

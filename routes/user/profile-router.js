@@ -2,7 +2,7 @@
 
 const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
-const debug = require('debug')('sportsapp:profile-router');
+const debug = require('debug')('bracketbusters:profile-router');
 
 const Profile = require('../../model/user/profile.js');
 const User = require('../../model/user/user.js');

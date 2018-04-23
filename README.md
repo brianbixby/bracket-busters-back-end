@@ -371,15 +371,7 @@ You can totally contribute to this project if you want. Fork the repo, make some
 
 ## Credits
 
-Initial codebase created by Code Fellows.
-
-Bessie Arino
-
 Brian Bixby
-
-Greg Nordeng
-
-Ken Unterseher
 
 ## License
 

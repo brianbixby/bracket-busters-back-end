@@ -2,7 +2,7 @@
 
 const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
-const debug = require('debug')('sportsapp:userPick-router');
+const debug = require('debug')('bracketbusters:userPick-router');
 const createError = require('http-errors');
 
 const UserPick = require('../../model/league/userPick.js');

@@ -1,9 +1,9 @@
 'use strict';
 
-const jsonParser = require('body-parser').json();
-const debug = require('debug')('sportsapp:auth-router');
+const { Router, json } = require('express');
+
+const debug = require('debug')('bracketbusters:auth-router');
 const createError = require('http-errors');
-const Router = require('express').Router;
 const basicAuth = require('../../lib/basic-auth-middleware.js');
 const bearerAuth = require('../../lib/bearer-auth-middleware');
 const User = require('../../model/user/user.js');
@@ -12,11 +12,16 @@ const Profile = require('../../model/user/profile.js');
 const authRouter = module.exports = Router();
 
 // http POST :3000/api/signup username=briguy999 email=brianbixby0@gmail.com password=password1
-authRouter.post('/api/signup', jsonParser, function(req, res, next) {
+authRouter.post('/api/signup', json(), (req, res, next) => {
   debug('POST: /api/signup');
-  if (!req.body.username || !req.body.email || !req.body.password) return next(createError(400, 'expected a request body username, email and password'));
+  const { username, password, email } = req.body;
+  const message = !username ? 'expected a username'
+    : !password ? 'expected a password'
+      : !email ? 'expected an email'
+        : null;
 
-  let password = req.body.password;
+  if (message) return next(createError(400, message));
+
   delete req.body.password;
 
   let user = new User(req.body);
@@ -35,10 +40,9 @@ authRouter.post('/api/signup', jsonParser, function(req, res, next) {
 });
 
 // http -a briguy999:password1 :3000/api/signin
-authRouter.get('/api/signin', basicAuth, function(req, res, next) {
+authRouter.get('/api/signin', basicAuth, (req, res, next) => {
   debug('GET: /api/signin');
-  console.log('req.auth', req.auth);
-  console.log('req.user', req.headers.authorization);
+
   let currentUser = User.findOne({ username: req.auth.username})
     .then(user => {
       if(!user) throw createError(401);
@@ -55,10 +59,8 @@ authRouter.get('/api/signin', basicAuth, function(req, res, next) {
           res.send(token);
         });
     })
-    // .then( token => res.send(token))
     .catch(next);
 });
-// .then( token => res.send(token))
 
 authRouter.get('/api/signup/usernames/:username', (req, res, next) => {
   User.findOne({username: req.params.username})
@@ -90,4 +92,3 @@ authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
     })
     .catch(next);
 });
-

@@ -1,7 +1,7 @@
 'use strict';
 
 const Router = require('express').Router;
-const debug = require('debug')('sportsapp:messageBoard-router');
+const debug = require('debug')('bracketbusters:messageBoard-router');
 
 const MessageBoard = require('../../model/league/messageBoard.js');
 const bearerAuth = require('../../lib/bearer-auth-middleware.js');

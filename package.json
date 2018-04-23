@@ -1,5 +1,5 @@
 {
-  "name": "sportsapp",
+  "name": "bracketbusters",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -35,8 +35,8 @@
     "testEnvironment": "node"
   },
   "scripts": {
-    "test": "DEBUG='sportsapp*' jest -i --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "start": "DEBUG='sportsapp*' node server.js",
+    "test": "DEBUG='bracketbusters*' jest -i --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "start": "DEBUG='bracketbusters*' node server.js",
     "lint": "eslint ."
   },
   "repository": {

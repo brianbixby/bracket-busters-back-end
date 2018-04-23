@@ -2,7 +2,7 @@
 
 const Router = require('express').Router;
 const jsonParser = require('body-parser').json();
-const debug = require('debug')('sportsapp:league-router');
+const debug = require('debug')('bracketbusters:league-router');
 const createError = require('http-errors');
 
 const League = require('../../model/league/league.js');
