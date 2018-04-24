@@ -51,7 +51,7 @@ teamRouter.put('/api/team/:teamID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/team:teamID');
   
   if (!req.body.teamName) return next(createError(400, 'expected a request body teamName'));
-  Team.findByIdAndUpdate(req.params.teamID, req.body, {new:true})
+  Team.findByIdAndUpdate(req.params.teamID, req.body, {new: true, runValidators: true})
     .then( team => res.json(team))
     .catch(next);
 });

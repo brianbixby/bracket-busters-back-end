@@ -77,7 +77,7 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/game/:gameID');
 
   if (!req.body) return next(createError(400, 'expected a request body'));
-  let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true})
+  let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true})
     .then( updatedGame => {
       if(!req.body.winner) res.json(updatedGame);
       return game = updatedGame;

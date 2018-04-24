@@ -40,10 +40,10 @@ profileRouter.put('/api/profile/:profileID', bearerAuth, json(), (req, res, next
   debug('PUT: /api/profile:profileID');
 
   req.body.lastLogin = new Date();
-  Profile.findByIdAndUpdate(req.params.profileID, req.body, { new: true })
+  Profile.findByIdAndUpdate(req.params.profileID, req.body, {new: true, runValidators: true})
     .then( myProfile => {
       let usernameObj = {username: myProfile.username };
-      return User.findByIdAndUpdate(myProfile.userID, usernameObj, {new: true})
+      return User.findByIdAndUpdate(myProfile.userID, usernameObj, {new: true, runValidators: true})
         .then(() => res.json(myProfile))
         .catch(next);
     })

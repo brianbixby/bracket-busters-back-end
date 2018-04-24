@@ -194,7 +194,7 @@ groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
   return Group.findById(req.params.groupID)
     .then( group => {
       if(group.owner.toString() !== req.user._id.toString()) return next(createError(403, 'forbidden access'));
-      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true})
+      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true, runValidators: true})
         .then( group => res.json(group));
     })
     .catch(next);

@@ -227,7 +227,7 @@ leagueRouter.put('/api/league/:leagueID', bearerAuth, json(), (req, res, next) =
   return League.findById(req.params.leagueID)
     .then( league => {
       if(league.owner.toString() !== req.user._id.toString()) return next(createError(403, 'forbidden access'));
-      League.findByIdAndUpdate(req.params.leagueID, req.body, {new: true})
+      League.findByIdAndUpdate(req.params.leagueID, req.body, {new: true, runValidators: true})
         .then( league => res.json(league));
     })
     .catch(next);

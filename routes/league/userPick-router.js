@@ -69,7 +69,7 @@ userPickRouter.put('/api/userpick/:userPickID', bearerAuth, json(), (req, res, n
 
   if (!userPickProperties) return next(createError(400, 'expected a request body'));
 
-  UserPick.findByIdAndUpdate(req.params.userPickID, req.body, {new: true})
+  UserPick.findByIdAndUpdate(req.params.userPickID, req.body, {new: true, runValidators: true})
     .then( userPick => res.json(userPick))
     .catch(next);
 });
