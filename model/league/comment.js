@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 
 const commentSchema = mongoose.Schema({
   userID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },
