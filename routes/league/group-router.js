@@ -43,6 +43,76 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
     .catch(next);
 }); 
 
+// add user to private group
+groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/group/private/adduser');
+
+  return Group.findOne({ groupName: req.body.groupName, password: req.body.password })
+    .then( group => {
+      group.users.push(req.user._id);
+      group.size = group.size + 1;
+      return group.save();
+    })
+    .then( group => {
+      return Profile.findOne({ userID: req.user._id })
+        .then( profile => {
+          profile.groups.push(req.params.groupId).save()
+            .then(() => res.json(group));
+        })
+        .catch( err => Promise.reject(createError(404, err.message)));
+    })
+    .catch(next);
+});
+
+// returns all groups of logged in user, actually get route
+groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
+  debug('POST: /api/groups/user');
+
+  Group.find( { _id: { $in: req.body} } )
+    .then(groups => res.json(groups))
+    .catch(next);
+});
+
+// RETURNS 1 SPECIFIC GROUP
+groupRouter.get('/api/group/:groupId', bearerAuth, (req, res, next) => {
+  debug('GET: /api/group/:groupId');
+
+  Group.findById(req.params.groupId)
+    .then(group => res.json(group))
+    .catch(next);
+});
+
+// returns all groups
+groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
+  debug('GET: /api/groups');
+
+  Group.find()
+    .then(groups => res.json(groups))
+    .catch(next);
+});
+
+groupRouter.get('/api/groupNames/:groupName', (req, res, next) => {
+  debug('GET: /api/groupNames/:groupName');
+
+  Group.findOne({ groupName: req.params.groupName })
+    .then( group => {
+      if(!group) {
+        return res.sendStatus(200);
+      }
+      return res.sendStatus(409);
+    })
+    .catch(next);
+});
+
+// returns all public groups
+groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {
+  debug('GET: /api/groups/allpublic');
+
+  Group.find({ privacy: 'public' })
+    .then(groups => res.json(groups))
+    .catch(next);
+});
+
 // http PUT :3000/api/group/:groupId/adduser 'Authorization:Bearer token'
 groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId/adduser');
@@ -59,27 +129,6 @@ groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, ne
           profile.groups.push(req.params.groupId);
           profile.save();
           res.json(group);
-        })
-        .catch( err => Promise.reject(createError(404, err.message)));
-    })
-    .catch(next);
-});
-
-// add user to private group
-groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/private/adduser');
-
-  return Group.findOne({ groupName: req.body.groupName, password: req.body.password })
-    .then( group => {
-      group.users.push(req.user._id);
-      group.size = group.size + 1;
-      return group.save();
-    })
-    .then( group => {
-      return Profile.findOne({ userID: req.user._id })
-        .then( profile => {
-          profile.groups.push(req.params.groupId).save()
-            .then(() => res.json(group));
         })
         .catch( err => Promise.reject(createError(404, err.message)));
     })
@@ -154,54 +203,5 @@ groupRouter.delete('/api/group/:groupId', bearerAuth, (req, res, next) => {
         .catch(next);
     })
     .then(() => res.status(204).send())
-    .catch(next);
-});
-
-// RETURNS 1 SPECIFIC GROUP
-groupRouter.get('/api/group/:groupId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/group/:groupId');
-
-  Group.findById(req.params.groupId)
-    .then(group => res.json(group))
-    .catch(next);
-});
-
-// returns all groups
-groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
-  debug('GET: /api/groups');
-
-  Group.find()
-    .then(groups => res.json(groups))
-    .catch(next);
-});
-
-groupRouter.get('/api/groupNames/:groupName', function (req, res, next) {
-  debug('GET: /api/groupNames/:groupName');
-
-  Group.findOne({ groupName: req.params.groupName })
-    .then( group => {
-      if(!group) {
-        return res.sendStatus(200);
-      }
-      return res.sendStatus(409);
-    })
-    .catch(next);
-});
-
-// returns all public groups
-groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {
-  debug('GET: /api/groups/allpublic');
-
-  Group.find({ privacy: 'public' })
-    .then(groups => res.json(groups))
-    .catch(next);
-});
-
-// returns all groups of logged in user
-groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/groups/user');
-
-  Group.find( { _id: { $in: req.body} } )
-    .then(groups => res.json(groups))
     .catch(next);
 });

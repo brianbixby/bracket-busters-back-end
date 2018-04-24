@@ -31,6 +31,16 @@ gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), 
     .catch(next);
 });
 
+// all games by sporting event ID
+// Game.find( {sportingEventID: req.params.sportingEventID })
+gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, next) => {
+  debug('POST:/api/games/:sportingEventID');
+
+  Game.find( { _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
+    .then(games => res.json(games))
+    .catch(next);
+});
+
 // http GET :3000/api/game/:gameId 'Authorization:Bearer token'
 gameRouter.get('/api/game/:gameId', bearerAuth, (req, res, next) => {
   debug('GET: /api/game/:gameId');
@@ -45,16 +55,6 @@ gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
   debug('GET: /api/games');
 
   Game.find()
-    .then(games => res.json(games))
-    .catch(next);
-});
-
-// all games by sporting event ID
-// Game.find( {sportingEventID: req.params.sportingEventID })
-gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, next) => {
-  debug('POST:/api/games/:sportingEventID');
-
-  Game.find( { _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
     .then(games => res.json(games))
     .catch(next);
 });

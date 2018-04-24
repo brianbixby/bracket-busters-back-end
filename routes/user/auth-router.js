@@ -11,7 +11,7 @@ const Profile = require('../../model/user/profile.js');
 
 const authRouter = module.exports = Router();
 
-// http POST :3000/api/signup username=briguy999 email=brianbixby0@gmail.com password=password1
+// http POST :3000/api/signup username=username email=email@gmail.com password=password
 authRouter.post('/api/signup', json(), (req, res, next) => {
   debug('POST: /api/signup');
   const { username, password, email } = req.body;
@@ -39,7 +39,7 @@ authRouter.post('/api/signup', json(), (req, res, next) => {
     .catch(next);
 });
 
-// http -a briguy999:password1 :3000/api/signin
+// http -a username:password :3000/api/signin
 authRouter.get('/api/signin', basicAuth, (req, res, next) => {
   debug('GET: /api/signin');
 
@@ -55,20 +55,12 @@ authRouter.get('/api/signin', basicAuth, (req, res, next) => {
         .then( profile => {
           profile.lastLogin = new Date();
           profile.save();
+        })
+        .then(() => {
           res.cookie('Bracket-Busters-Token', token, {maxAge: 604800000});
           res.send(token);
-        });
-    })
-    .catch(next);
-});
-
-// http GET :3000/api/signup/usernames/briguy999
-authRouter.get('/api/signup/usernames/:username', (req, res, next) => {
-  User.findOne({username: req.params.username})
-    .then(user => {
-      if(!user)
-        return res.sendStatus(200);
-      return res.sendStatus(409);
+        })
+        .catch(next);
     })
     .catch(next);
 });
@@ -88,9 +80,23 @@ authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
         .then( profile => {
           profile.lastLogin = new Date();
           profile.save();
+        })
+        .then(() => {
           res.cookie('Bracket-Busters-Token', token, {maxAge: 604800000});
           res.send(token);
-        });
+        })
+        .catch(next);
+    })
+    .catch(next);
+});
+
+// http GET :3000/api/signup/usernames/username
+authRouter.get('/api/signup/usernames/:username', (req, res, next) => {
+  User.findOne({username: req.params.username})
+    .then(user => {
+      if(!user)
+        return res.sendStatus(200);
+      return res.sendStatus(409);
     })
     .catch(next);
 });

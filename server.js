@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGODB_URI);
 
-// ROUTERS & MIDDLEWARE
+// ROUTES & MIDDLEWARE
 app.use(allRoutes);
 
 const server = module.exports = app.listen(PORT, () => {

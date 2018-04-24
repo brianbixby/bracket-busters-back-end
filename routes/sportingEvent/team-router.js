@@ -20,16 +20,6 @@ teamRouter.post('/api/sportingevent/:sportingEventId/team', bearerAuth, json(), 
     .catch(next);
 });
 
-// http PUT :3000/api/team/:teamId 'Authorization:Bearer TOKEN' tags='new tag'
-teamRouter.put('/api/team/:teamId', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/team:teamId');
-  
-  if (!req.body.teamName) return next(createError(400, 'expected a request body teamName'));
-  Team.findByIdAndUpdate(req.params.teamId, req.body, {new:true})
-    .then( team => res.json(team))
-    .catch(next);
-});
-
 // http GET :3000/api/:teamId 'Authorization:Bearer TOKEN'
 teamRouter.get('/api/team/:teamId', bearerAuth, (req, res, next) => {
   debug('GET: /api/team/:teamId');
@@ -45,5 +35,15 @@ teamRouter.get('/api/team', bearerAuth, (req, res, next) => {
 
   Team.find()
     .then(teams => res.json(teams))
+    .catch(next);
+});
+
+// http PUT :3000/api/team/:teamId 'Authorization:Bearer TOKEN' tags='new tag'
+teamRouter.put('/api/team/:teamId', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/team:teamId');
+  
+  if (!req.body.teamName) return next(createError(400, 'expected a request body teamName'));
+  Team.findByIdAndUpdate(req.params.teamId, req.body, {new:true})
+    .then( team => res.json(team))
     .catch(next);
 });

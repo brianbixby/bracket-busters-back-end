@@ -22,6 +22,17 @@ profileRouter.get('/api/profile/:profileId', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// http GET :3000/api/profiles/currentuser 'Authorization:Bearer TOKEN'
+profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
+  Profile.findOne({userID: req.user._id})
+    .then(profile => {
+      if(!profile)
+        return next(createError(404, 'NOT FOUND ERROR: profile not found'));
+      res.json(profile);
+    })
+    .catch(next);
+});
+
 // http PUT :3000/api/profile/:profileId 'Authorization:Bearer TOKEN' username='new username'
 profileRouter.put('/api/profile/:profileId', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/profile:profileId');
@@ -33,17 +44,6 @@ profileRouter.put('/api/profile/:profileId', bearerAuth, json(), (req, res, next
       return User.findByIdAndUpdate(myProfile.userID, usernameObj, {new: true})
         .then(() => res.json(myProfile))
         .catch(next);
-    })
-    .catch(next);
-});
-
-// http GET :3000/api/profiles/currentuser 'Authorization:Bearer TOKEN'
-profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
-  Profile.findOne({userID: req.user._id})
-    .then(profile => {
-      if(!profile)
-        return next(createError(404, 'NOT FOUND ERROR: profile not found'));
-      res.json(profile);
     })
     .catch(next);
 });

@@ -46,41 +46,6 @@ leagueRouter.post('/api/sportingevent/:sportingeventId/league', bearerAuth, json
     .catch(next);
 });
 
-// http PUT :3000/api/league/:leagueId/adduser 'Authorization:Bearer token'
-leagueRouter.put('/api/league/:leagueId/adduser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/league/:leagueId/adduser');
-
-  return League.findById(req.params.leagueId)
-    .then( league => {
-      league.users.push(req.user._id);
-      league.size = league.size + 1;
-      return league.save();
-    })
-    .then( league => {
-      let scoreboard = { leagueID: league._id, userID: req.user._id };
-      if (!scoreboard.leagueID || !scoreboard.userID ) return next(createError(400, 'expected a request body leagueID and userID'));
-      return new ScoreBoard(scoreboard).save()
-        .then(() => league)
-        .catch( err => Promise.reject(createError(404, err.message)));
-      // .then( scoreBoard => {
-      //   return { scoreBoardLeague: scoreBoard.leagueID, scoreBoardUser: scoreBoard.userID, leagueUsers: league.users };
-      // });
-    })
-    .then( returnObj => {
-      return Profile.findOne({ userID: req.user._id })
-        .catch( err => Promise.reject(createError(404, err.message)))
-        .then( profile => {
-          profile.leagues.push(req.params.leagueId);
-          profile.save();
-          // returnObj.profileLeagues = profile.leagues;
-          res.json(returnObj);
-          // console.log('myLeague: myLeague');
-          // res.json(myLeague);
-        });
-    })
-    .catch(next);
-});
-
 // add user to private league
 leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/league/private/adduser');
@@ -110,6 +75,89 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
           profile.save();
           // returnObj.profileLeagues = profile.leagues;
           console.log('returnobj: ', returnObj);
+          res.json(returnObj);
+          // console.log('myLeague: myLeague');
+          // res.json(myLeague);
+        });
+    })
+    .catch(next);
+});
+
+// returns all leagues of logged in user, actually get route
+leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
+  debug('POST: /api/leagues/user');
+
+  League.find( { _id: { $in: req.body} } )
+    .then(leagues => res.json(leagues))
+    .catch(next);
+});
+
+leagueRouter.get('/api/league/:leagueId', bearerAuth, (req, res, next) => {
+  debug('GET: /api/league/:leagueId');
+
+  console.log('req.params: ', req.params.leagueId);
+  League.findById(req.params.leagueId)
+    .then( league => res.json(league))
+    .catch(next);
+});
+
+leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
+  debug('GET: /api/leagues');
+
+  League.find()
+    .then(leagues => res.json(leagues))
+    .catch(next);
+});
+
+leagueRouter.get('/api/leagueNames/:leagueName', (req, res, next) => {
+  debug('GET: /api/leagueNames/:leagueName');
+
+  League.findOne({ leagueName: req.params.leagueName })
+    .then( league => {
+      if(!league) {
+        return res.sendStatus(200);
+      }
+      return res.sendStatus(409);
+    })
+    .catch(next);
+});
+
+// returns all public leagues
+leagueRouter.get('/api/leagues/allpublic', bearerAuth, (req, res, next) => {
+  debug('GET: /api/leagues/allpublic');
+  
+  League.find({ privacy: 'public' })
+    .then(leagues =>  res.json(leagues))
+    .catch(next);
+});
+
+// http PUT :3000/api/league/:leagueId/adduser 'Authorization:Bearer token'
+leagueRouter.put('/api/league/:leagueId/adduser', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/league/:leagueId/adduser');
+
+  return League.findById(req.params.leagueId)
+    .then( league => {
+      league.users.push(req.user._id);
+      league.size = league.size + 1;
+      return league.save();
+    })
+    .then( league => {
+      let scoreboard = { leagueID: league._id, userID: req.user._id };
+      if (!scoreboard.leagueID || !scoreboard.userID ) return next(createError(400, 'expected a request body leagueID and userID'));
+      return new ScoreBoard(scoreboard).save()
+        .then(() => league)
+        .catch( err => Promise.reject(createError(404, err.message)));
+      // .then( scoreBoard => {
+      //   return { scoreBoardLeague: scoreBoard.leagueID, scoreBoardUser: scoreBoard.userID, leagueUsers: league.users };
+      // });
+    })
+    .then( returnObj => {
+      return Profile.findOne({ userID: req.user._id })
+        .catch( err => Promise.reject(createError(404, err.message)))
+        .then( profile => {
+          profile.leagues.push(req.params.leagueId);
+          profile.save();
+          // returnObj.profileLeagues = profile.leagues;
           res.json(returnObj);
           // console.log('myLeague: myLeague');
           // res.json(myLeague);
@@ -170,23 +218,6 @@ leagueRouter.put('/api/league/:leagueId', bearerAuth, json(), (req, res, next) =
     .catch(next);
 });
 
-leagueRouter.get('/api/league/:leagueId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/league/:leagueId');
-
-  console.log('req.params: ', req.params.leagueId);
-  League.findById(req.params.leagueId)
-    .then( league => res.json(league))
-    .catch(next);
-});
-
-leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
-  debug('GET: /api/leagues');
-
-  League.find()
-    .then(leagues => res.json(leagues))
-    .catch(next);
-});
-
 // http DELETE :3000/api/league/:leagueId 'Authorization:Bearer token'
 leagueRouter.delete('/api/league/:leagueId', bearerAuth, (req, res, next) => {
   debug('DELETE: /api/league/:leagueId');
@@ -207,36 +238,5 @@ leagueRouter.delete('/api/league/:leagueId', bearerAuth, (req, res, next) => {
         .catch(next);
     })
     .then(() => res.status(204).send())
-    .catch(next);
-});
-
-leagueRouter.get('/api/leagueNames/:leagueName', (req, res, next) => {
-  debug('GET: /api/leagueNames/:leagueName');
-
-  League.findOne({ leagueName: req.params.leagueName })
-    .then( league => {
-      if(!league) {
-        return res.sendStatus(200);
-      }
-      return res.sendStatus(409);
-    })
-    .catch(next);
-});
-
-// returns all leagues of logged in user
-leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/leagues/user');
-
-  League.find( { _id: { $in: req.body} } )
-    .then(leagues => res.json(leagues))
-    .catch(next);
-});
-
-// returns all public leagues
-leagueRouter.get('/api/leagues/allpublic', bearerAuth, (req, res, next) => {
-  debug('GET: /api/leagues/allpublic');
-  
-  League.find({ privacy: 'public' })
-    .then(leagues =>  res.json(leagues))
     .catch(next);
 });

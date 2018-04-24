@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 const createError = require('http-errors');
 const Promise = require('bluebird');
-const debug = require('debug')('sportsapp:user');
+const debug = require('debug')('bracketbusters:user');
 
 const userSchema = mongoose.Schema({
   username: {type: String, required: true, unique: true },

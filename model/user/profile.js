@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
-const debug = require('debug')('sportsapp:profile');
+const debug = require('debug')('backetbusters:profile');
 const createError = require('http-errors');
 
 const profileSchema = mongoose.Schema({
