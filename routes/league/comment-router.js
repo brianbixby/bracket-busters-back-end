@@ -18,6 +18,7 @@ commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, json
 
   MessageBoard.findByIdAndAddComment(req.params.messageBoardID, req.body)
     .then(res.json)
+    // .then ( comment => res.json(comment))
     .catch(next);
 });
 

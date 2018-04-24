@@ -105,13 +105,17 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
           userPicks.forEach(function(userPick) {
             if(userPick.pick.toString() == game.winner.toString()) {
               userPick.correct = true;
-              userPick.save();
-              scoreBoard2Update.push(
-                ScoreBoard.findOne({ userID: userPick.userID, leagueID: userPick.leagueID })
-                  .then( newscoreBoard => {
-                    newscoreBoard.score += (1 * game.weight);
-                    return newscoreBoard.save();
-                  }));
+              userPick.save()
+                .then(userPick => {
+                  ScoreBoard.findOne({ userID: userPick.userID, leagueID: userPick.leagueID })
+                    .then( newscoreBoard => {
+                      newscoreBoard.score += (10 * game.weight);
+                      return newscoreBoard.save();
+                    })
+                    .then(newscoreBoard => scoreBoard2Update.push(newscoreBoard))
+                    .catch(next);
+                })
+                .catch(next);
             }           
             else { 
               userPick.correct = false;

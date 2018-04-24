@@ -7,7 +7,7 @@ const userPickSchema = mongoose.Schema({
   leagueID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'league' },
   gameID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'gameSchema' },
   pick: { type: mongoose.Schema.Types.ObjectId, ref: 'team' },
-  correct: Boolean,
+  correct: { type: Boolean, default: false },
   gameTime: { type: Date, required: true },
 });
 
