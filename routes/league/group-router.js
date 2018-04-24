@@ -29,28 +29,34 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
   let group = new Group(req.body).save()
     .then( myGroup => {
       group = myGroup;
-      return new MessageBoard({ groupID: group._id }).save();
+      return new MessageBoard({ groupID: group._id }).save()
+        .catch(next);
     })
     .then( () => {
-      return Profile.findOne({ userID: req.user._id })
-        .then( profile => {
-          profile.groups.push(group._id)
-            .then(profile => profile.save())
-            .catch(next);
-        })
-        .catch( err => Promise.reject(createError(404, err.message)));
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}, { new: true }).save()
+        .then( () => res.json(group))
+        .catch(next);
+      // return Profile.findOne({ userID: req.user._id })
+      //   .then( profile => {
+      //     profile.groups.push(group._id)
+      //       .then(profile => profile.save())
+      //       .catch(next);
+      //   })
+      //   .catch( err => Promise.reject(createError(404, err.message)));
     })
-    .then( () => res.json(group))
+    // .then( () => res.json(group))
     .catch(next);
 }); 
+
+
 
 // add user to private group
 groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/private/adduser');
 
-  Group.findOneAndUpdate({ groupName: req.body.groupName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
+  Group.findOneAndUpdate({ groupName: req.body.groupName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true }).save()
     .then( group => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: req.params.groupId }}, { new: true })
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}).save()
         .then(() => res.json(group))
         .catch(next);
     })
@@ -144,20 +150,11 @@ groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) =
 groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupID/adduser');
 
-  Group.findById(req.params.groupID)
+  Group.findByIdAndUpdate(req.params.groupID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true }).save()
     .then( group => {
-      group.users.push(req.user._id);
-      group.size = group.size + 1;
-      return group.save();
-    })
-    .then( group => {
-      Profile.findOne({ userID: req.user._id })
-        .then( profile => {
-          profile.groups.push(req.params.groupID);
-          profile.save()
-            .then(() => res.json(group));
-        })
-        .catch( err => Promise.reject(createError(404, err.message)));
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}).save()
+        .then(() => res.json(group))
+        .catch(next);
     })
     .catch(next);
 });
@@ -166,23 +163,11 @@ groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, ne
 groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupID/removeuser');
 
-  Group.findById(req.params.groupID)
+  Group.findByIdAndUpdate(req.params.groupID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true }).save()
     .then( group => {
-      group.users.pull(req.user._id);
-      group.size = group.size - 1;
-      return group.save();
-    })
-    .then( group => {
-      Profile.findOne({ userID: req.user._id })
-        .then( profile => {
-          profile.groups.pull(req.params.groupID).save()
-            .then(() => {
-              let returnObj = { groupUsers: group.users, profileGroups: profile.groups };
-              res.json(returnObj);
-            })
-            .catch(next);
-        })
-        .catch( err => Promise.reject(createError(404, err.message)));
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { groups: group._id }}).save()
+        .then(() => res.json(group))
+        .catch(next);
     })
     .catch(next);
 });
@@ -206,10 +191,13 @@ groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
     return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
   Group.findById(req.params.groupID)
     .then( group => {
+      if(!group)
+        return next(createError(404, 'NOT FOUND ERROR: group not found'));
+
       if(group.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true, runValidators: true})
+      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true, runValidators: true}).save()
         .then( group => res.json(group))
         .catch(next);
     })
@@ -228,16 +216,20 @@ groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
       if(group.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      let profileUpdates = [];
-      group.users.forEach(function(groupUser) {
-        Profile.findOne({ userID: groupUser })
-          .then( profile => profile.groups.pull(req.params.groupID).save())
-          .then(profile => profileUpdates.push(profile))
-          .catch(next);
-      });
-      return Promise.all(profileUpdates)
+      Profile.Update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true}).save()
+        .then(profile => console.log('array of updated ids: ', profile))
         .then( () => group.remove())
         .catch(next);
+      // let profileUpdates = [];
+      // group.users.forEach(function(groupUser) {
+      //   Profile.findOne({ userID: groupUser })
+      //     .then( profile => profile.groups.pull(req.params.groupID).save())
+      //     .then(profile => profileUpdates.push(profile))
+      //     .catch(next);
+      // });
+      // return Promise.all(profileUpdates)
+      //   .then( () => group.remove())
+      //   .catch(next);
     })
     .then(() => res.status(204).send())
     .catch(next);
