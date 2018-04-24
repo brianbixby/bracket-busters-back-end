@@ -6,7 +6,7 @@ const sportingEventSchema = mongoose.Schema ({
   sportingEventName: { type: String, required: true },
   desc: { type: String, required: true },
   createdOn: { type: Date, default: Date.now },
-  tags: [{type: String }],
+  tags: [ String ],
 });
 
 module.exports = mongoose.model('sportingEvent', sportingEventSchema);

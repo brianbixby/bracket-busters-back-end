@@ -1,9 +1,9 @@
 'use strict';
 
 const { Router, json } = require('express');
-
 const debug = require('debug')('bracketbusters:auth-router');
 const createError = require('http-errors');
+
 const basicAuth = require('../../lib/basic-auth-middleware.js');
 const bearerAuth = require('../../lib/bearer-auth-middleware');
 const User = require('../../model/user/user.js');
@@ -62,6 +62,7 @@ authRouter.get('/api/signin', basicAuth, (req, res, next) => {
     .catch(next);
 });
 
+// http GET :3000/api/signup/usernames/briguy999
 authRouter.get('/api/signup/usernames/:username', (req, res, next) => {
   User.findOne({username: req.params.username})
     .then(user => {
@@ -72,6 +73,7 @@ authRouter.get('/api/signup/usernames/:username', (req, res, next) => {
     .catch(next);
 });
 
+// http GET :3000/api/signin/token 'Authorization:Bearer TOKEN'
 authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
   debug('GET: /api/signin/token');
 

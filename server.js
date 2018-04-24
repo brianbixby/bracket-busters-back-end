@@ -20,7 +20,7 @@ app.use(morgan('dev'));
 app.use(allRoutes);
 
 const server = module.exports = app.listen(PORT, () => {
-  debug(`cf madness is running on: ${PORT}`);
+  debug(`bracket busters is running on: ${PORT}`);
 });
 
 server.isRunning = true;

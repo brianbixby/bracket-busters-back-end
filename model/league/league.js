@@ -15,14 +15,14 @@ const leagueSchema = mongoose.Schema({
   scoring: { type: String, required: true},
   poolSize: { type: Number, required: true },
   privacy: { type: String, default: 'public', required: true },
-  password: { type: String },
+  password: String,
   winner: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   status: { type: String, default: 'active' },
   users: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
   createdOn: { type: Date, default: Date.now },
   size: { type: Number, default: 1 },
   paidUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
-  tags: [{type: String }],
+  tags: [ String ],
 });
 
 leagueSchema.pre('remove', function(next) {
