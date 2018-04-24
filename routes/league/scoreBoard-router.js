@@ -8,18 +8,17 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const scoreBoardRouter = module.exports = Router();
 
+// http GET :3000/api/scoreboards/:leagueID 'Authorization:Bearer token'
 scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboards/:leagueID');
   
   ScoreBoard.find({ leagueID: req.params.leagueID }).populate({path: 'userID', select: 'username'}) 
     .sort('score')
-    .then(scoreBoards =>  {
-      console.log('scoreboard: ', scoreBoards);
-      res.json(scoreBoards);
-    })
+    .then(scoreBoards =>  res.json(scoreBoards))
     .catch(next);
 });
 
+// http GET :3000/api/scoreboard/:scoreBoardId 'Authorization:Bearer token'
 scoreBoardRouter.get('/api/scoreboard/:scoreBoardId', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboard/:scoreBoardId');
 
@@ -28,6 +27,7 @@ scoreBoardRouter.get('/api/scoreboard/:scoreBoardId', bearerAuth, (req, res, nex
     .catch(next);
 });
 
+// http GET :3000/api/scoreboards 'Authorization:Bearer token'
 scoreBoardRouter.get('/api/scoreboards', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboards');
 

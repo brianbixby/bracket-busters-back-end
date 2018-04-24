@@ -13,7 +13,7 @@ const gameSchema = mongoose.Schema ({
   winner: { type: mongoose.Schema.Types.ObjectId, ref: 'team' },
   loser: { type: mongoose.Schema.Types.ObjectId, ref: 'team' },
   sportingEventID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'sportingEvent' },
-  tags: [{type: String }],
+  tags: [ String ],
 });
 
 module.exports = mongoose.model('gameSchema', gameSchema);

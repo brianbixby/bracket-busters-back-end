@@ -12,9 +12,10 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const gameRouter = module.exports = Router();
 
-// http POST :3000/api/sportingevent/5aa72ffd589c3d4ce00ed2aa/game 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjdjZjNjNTExYTIxZGUxNmUxZTM5MjBkZDNiNGI4NGZmOTJlZTZkMDA0OWRjMTMyOWZmMzkwYzNhZGUwYmYwZmMiLCJpYXQiOjE1MjA5OTQxODV9.ZdivKHeGH9rDklclxKal3u2GylQeDJiaor4f2bsWcpA' homeTeam='5aa8c322091555739d8cb12c' awayTeam='5aa8c340091555739d8cb12d' dateTime='2018-03-13 23:37:52-0700'
+// http POST :3000//api/sportingevent/:sportingeventId/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
 gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/sportingevent/:sportingeventId/game');
+
   const { homeTeam, awayTeam, dateTime } = req.body;
   const message = !homeTeam ? 'expected a homeTeam'
     : !awayTeam ? 'expected a awayTeam'
@@ -30,6 +31,7 @@ gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), 
     .catch(next);
 });
 
+// http GET :3000/api/game/:gameId 'Authorization:Bearer token'
 gameRouter.get('/api/game/:gameId', bearerAuth, (req, res, next) => {
   debug('GET: /api/game/:gameId');
 
@@ -38,6 +40,7 @@ gameRouter.get('/api/game/:gameId', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// http GET :3000/api/games 'Authorization:Bearer token'
 gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
   debug('GET: /api/games');
 
@@ -57,7 +60,7 @@ gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, ne
 });
 
 
-// http PUT :3000/api/game/5aaa8ae6f2db6d1315d2934a 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6ImNiZTQzODQwMTBiZmJjN2I2NDJiNTlkZTM1ZjgxMDE3NDhlMTA3MDJmNmU3NmExZWEzOGJmN2M3ZWY2NDUyODUiLCJpYXQiOjE1MjExMjU4Njd9.4p5DqkayofQHjCbHYzSDr8FPexGFcdtJCsM8gTc3maU' gameID='5aaa8ae6f2db6d1315d2934a' winner='5aa8c322091555739d8cb12c' loser='5aa8c340091555739d8cb12d' homeScore=50 awayScore=40 status='played'
+// http PUT :3000/api/game/5aaa8ae6f2db6d1315d2934a 'Authorization:Bearer token' gameID='game._id' winner='team._id' loser='team._id' homeScore=50 awayScore=40 status='played'
 gameRouter.put('/api/game/:gameId', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/game/:gameId');
 

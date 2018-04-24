@@ -9,6 +9,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const teamRouter = module.exports = Router();
 
+// http POST :3000/api/sportingevent/:sportingEventId/team 'Authorization:Bearer TOKEN' teamName='team name'
 teamRouter.post('/api/sportingevent/:sportingEventId/team', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/team');
 
@@ -19,6 +20,7 @@ teamRouter.post('/api/sportingevent/:sportingEventId/team', bearerAuth, json(), 
     .catch(next);
 });
 
+// http PUT :3000/api/team/:teamId 'Authorization:Bearer TOKEN' tags='new tag'
 teamRouter.put('/api/team/:teamId', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/team:teamId');
   
@@ -28,6 +30,7 @@ teamRouter.put('/api/team/:teamId', bearerAuth, json(), (req, res, next) => {
     .catch(next);
 });
 
+// http GET :3000/api/:teamId 'Authorization:Bearer TOKEN'
 teamRouter.get('/api/team/:teamId', bearerAuth, (req, res, next) => {
   debug('GET: /api/team/:teamId');
 
@@ -36,6 +39,7 @@ teamRouter.get('/api/team/:teamId', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// http GET :3000/api/team 'Authorization:Bearer TOKEN'
 teamRouter.get('/api/team', bearerAuth, (req, res, next) => {
   debug('GET: /api/team');
 

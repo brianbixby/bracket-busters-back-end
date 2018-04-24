@@ -13,12 +13,19 @@ const sportingEventRouter = module.exports = Router();
 sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/sportingEvent');
 
-  if (!req.body.sportingEventName || !req.body.desc ) return next(createError(400, 'expected a request body name and desc'));
+  const { sportingEventName, desc } = req.body;
+  const message = !sportingEventName ? 'expected a sportingEventName'
+    : !desc ? 'expected a desc'
+      : null;
+  
+  if (message) return next(createError(400, message));
+  
   new SportingEvent(req.body).save()
     .then( sportingEvent => res.json(sportingEvent))
     .catch(next);
 });
 
+// http GET :3000/api/sportingevent/:sportingEventId 'Authorization:Bearer TOKEN'
 sportingEventRouter.get('/api/sportingevent/:sportingEventId', bearerAuth, (req, res, next) => {
   debug('GET: /api/sportingEvent/:sportingEventId');
 
@@ -27,6 +34,7 @@ sportingEventRouter.get('/api/sportingevent/:sportingEventId', bearerAuth, (req,
     .catch(next);
 });
 
+// http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
 sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
   debug('GET: /api/sportingevents');
 

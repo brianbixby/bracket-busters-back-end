@@ -11,11 +11,17 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const groupRouter = module.exports = Router();
 
-// http POST :3000/api/group 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Ijk3OTZmOGMzNjI2NDhhMDM0YzNkMzg1YmU4MjIyNTFkZTUyYTBmNTY4NWI5ZDM4ODg3NTNkMjUwZjljMjFhODkiLCJpYXQiOjE1MjEwMDQ3OTB9.I_xZOfe87-EQWz_vnHzHCSO26bWtarNeheEM18I_wEA' groupName='newgroupasfd' privacy='aewf'
+// http POST :3000/api/group 'Authorization:Bearer token groupName='newgroupasfd' privacy='aewf'
 groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/group');
 
-  if (!req.body.groupName || !req.body.privacy) return next(createError(400, 'expected a request body groupName, privacy'));
+  const { groupName, privacy } = req.body;
+  const message = !groupName ? 'expected a groupName'
+    : !privacy ? 'expected a privacy'
+      : null;
+  
+  if (message) return next(createError(400, message));
+
   req.body.owner = req.user._id;
   req.body.users = req.user._id;
   req.body.ownerName = req.user.username;
@@ -27,36 +33,34 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
     })
     .then( () => {
       return Profile.findOne({ userID: req.user._id })
-        .catch( err => Promise.reject(createError(404, err.message)))
         .then( profile => {
           profile.groups.push(group._id);
           return profile.save();
-        });
+        })
+        .catch( err => Promise.reject(createError(404, err.message)));
     })
     .then( () => res.json(group))
     .catch(next);
 }); 
 
-// http PUT :3000/api/group/5aa8b142eb28637009a35fe3/adduser 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjZiZjIwNzZkOWI0MThlMTcwN2VjNzU1NWY3MWM2YTRhYTQxYThlYjJhZmZmZjg3YzEzNzlmMjhiMjgxZDUzNTQiLCJpYXQiOjE1MjEwMDUwNjF9.QFL8nK6rS-_sDfD9XdZFhXcnXR75zMdKNKTjQl_8T_4'
+// http PUT :3000/api/group/:groupId/adduser 'Authorization:Bearer token'
 groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId/adduser');
 
-  return Group.findById(req.params.groupId)
+  Group.findById(req.params.groupId)
     .then( group => {
       group.users.push(req.user._id);
       group.size = group.size + 1;
       return group.save();
     })
     .then( group => {
-      return Profile.findOne({ userID: req.user._id })
-        .catch( err => Promise.reject(createError(404, err.message)))
+      Profile.findOne({ userID: req.user._id })
         .then( profile => {
           profile.groups.push(req.params.groupId);
           profile.save();
-          // let returnObj = { groupUsers: group.users, profileGroups: profile.groups };
-          // res.json(returnObj);
           res.json(group);
-        });
+        })
+        .catch( err => Promise.reject(createError(404, err.message)));
     })
     .catch(next);
 });
@@ -64,7 +68,6 @@ groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, ne
 // add user to private group
 groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/private/adduser');
-  console.log('req.body: ', req.body);
 
   return Group.findOne({ groupName: req.body.groupName, password: req.body.password })
     .then( group => {
@@ -74,45 +77,54 @@ groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, ne
     })
     .then( group => {
       return Profile.findOne({ userID: req.user._id })
-        .catch( err => Promise.reject(createError(404, err.message)))
         .then( profile => {
-          profile.groups.push(req.params.groupId);
-          profile.save();
-          // let returnObj = { groupUsers: group.users, profileGroups: profile.groups };
-          // res.json(returnObj);
-          res.json(group);
-        });
+          profile.groups.push(req.params.groupId).save()
+            .then(() => res.json(group));
+        })
+        .catch( err => Promise.reject(createError(404, err.message)));
     })
     .catch(next);
 });
 
-// http PUT :3000/api/group/5aa8b142eb28637009a35fe3/removeuser 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjZiZjIwNzZkOWI0MThlMTcwN2VjNzU1NWY3MWM2YTRhYTQxYThlYjJhZmZmZjg3YzEzNzlmMjhiMjgxZDUzNTQiLCJpYXQiOjE1MjEwMDUwNjF9.QFL8nK6rS-_sDfD9XdZFhXcnXR75zMdKNKTjQl_8T_4'
+// http PUT :3000/api/group/:groupId/removeuser 'Authorization:Bearer token'
 groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId/removeuser');
 
-  return Group.findById(req.params.groupId)
+  Group.findById(req.params.groupId)
     .then( group => {
       group.users.pull(req.user._id);
       group.size = group.size - 1;
       return group.save();
     })
     .then( group => {
-      return Profile.findOne({ userID: req.user._id })
-        .catch( err => Promise.reject(createError(404, err.message)))
+      Profile.findOne({ userID: req.user._id })
         .then( profile => {
-          profile.groups.pull(req.params.groupId);
-          profile.save();
-          let returnObj = { groupUsers: group.users, profileGroups: profile.groups };
-          res.json(returnObj);
-        });
+          profile.groups.pull(req.params.groupId).save()
+            .then(() => {
+              let returnObj = { groupUsers: group.users, profileGroups: profile.groups };
+              res.json(returnObj);
+            });
+        })
+        .catch( err => Promise.reject(createError(404, err.message)));
     })
     .catch(next);
 });
 
-// http PUT :3000/api/group/5aa8b142eb28637009a35fe3 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Ijk3OTZmOGMzNjI2NDhhMDM0YzNkMzg1YmU4MjIyNTFkZTUyYTBmNTY4NWI5ZDM4ODg3NTNkMjUwZjljMjFhODkiLCJpYXQiOjE1MjEwMDQ3OTB9.I_xZOfe87-EQWz_vnHzHCSO26bWtarNeheEM18I_wEA'
+// http PUT :3000/api/group/:groupId 'Authorization:Bearer token'
 groupRouter.put('/api/group/:groupId', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupId');
-  let groupProperties = req.body.groupName || req.body.privacy || req.body.size || req.body.motto || req.body.createdOn || req.body.image || req.body.owner || req.body.password || req.body.users || req.body.tags;
+
+  let groupProperties = req.body.groupName 
+   || req.body.privacy 
+   || req.body.size 
+   || req.body.motto 
+   || req.body.createdOn 
+   || req.body.image 
+   || req.body.owner 
+   || req.body.password 
+   || req.body.users 
+   || req.body.tags;
+
   if (!groupProperties) return next(createError(400, 'expected a request body'));
   return Group.findById(req.params.groupId)
     .then( group => {
@@ -123,21 +135,19 @@ groupRouter.put('/api/group/:groupId', bearerAuth, json(), (req, res, next) => {
     .catch(next);
 });
 
-// http DELETE :3000/api/group/5aa8b142eb28637009a35fe3 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6Ijk3OTZmOGMzNjI2NDhhMDM0YzNkMzg1YmU4MjIyNTFkZTUyYTBmNTY4NWI5ZDM4ODg3NTNkMjUwZjljMjFhODkiLCJpYXQiOjE1MjEwMDQ3OTB9.I_xZOfe87-EQWz_vnHzHCSO26bWtarNeheEM18I_wEA'
+// http DELETE :3000/api/group/:groupId 'Authorization:Bearer token'
 groupRouter.delete('/api/group/:groupId', bearerAuth, (req, res, next) => {
   debug('DELETE: /api/group/:groupId');
 
   return Group.findById(req.params.groupId)
     .then( group => {
+      if(!group) throw createError(401);
       if(group.owner.toString() !== req.user._id.toString()) return next(createError(403, 'forbidden access'));
       let profileUpdates = [];
-      group.users.forEach(function(luser) {
+      group.users.forEach(function(groupUser) {
         profileUpdates.push(
-          Profile.findOne({ userID: luser })
-            .then( user => {
-              user.groups.pull(req.params.groupId);
-              return user.save();
-            }));
+          Profile.findOne({ userID: groupUser })
+            .then( user => user.groups.pull(req.params.groupId).save()));
       });
       return Promise.all(profileUpdates)
         .then( () => group.remove())
@@ -181,19 +191,15 @@ groupRouter.get('/api/groupNames/:groupName', function (req, res, next) {
 // returns all public groups
 groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {
   debug('GET: /api/groups/allpublic');
-  console.log('all public groups server route hit');
+
   Group.find({ privacy: 'public' })
-    .then(groups => {
-      console.log('groups: ', groups);
-      res.json(groups);
-    })
+    .then(groups => res.json(groups))
     .catch(next);
 });
 
-// returns all leagues of logged in user
+// returns all groups of logged in user
 groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/groups/user');
-  console.log('req.body: ', req.body);
 
   Group.find( { _id: { $in: req.body} } )
     .then(groups => res.json(groups))
