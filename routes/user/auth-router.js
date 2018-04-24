@@ -45,7 +45,8 @@ authRouter.get('/api/signin', basicAuth, (req, res, next) => {
 
   let currentUser = User.findOne({ username: req.auth.username})
     .then(user => {
-      if(!user) throw createError(401);
+      if(!user)
+        throw createError(401);
       return currentUser = user;
     })
     .then( user => user.comparePasswordHash(req.auth.password))
@@ -71,7 +72,8 @@ authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
 
   let currentUser = User.findById(req.user._id)
     .then(user => {
-      if(!user) throw createError(401);
+      if(!user)
+        throw createError(401);
       return currentUser = user;
     })
     .then( user => user.generateToken())

@@ -69,16 +69,24 @@ groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/groups/user');
 
   Group.find( { _id: { $in: req.body} } )
-    .then(groups => res.json(groups))
+    .then(groups => {
+      if(!groups)
+        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
+      res.json(groups);
+    })
     .catch(next);
 });
 
 // RETURNS 1 SPECIFIC GROUP
-groupRouter.get('/api/group/:groupId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/group/:groupId');
+groupRouter.get('/api/group/:groupID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/group/:groupID');
 
-  Group.findById(req.params.groupId)
-    .then(group => res.json(group))
+  Group.findById(req.params.groupID)
+    .then(group => {
+      if(!group)
+        return next(createError(404, 'NOT FOUND ERROR: group not found'));
+      res.json(group);
+    })
     .catch(next);
 });
 
@@ -87,7 +95,11 @@ groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
   debug('GET: /api/groups');
 
   Group.find()
-    .then(groups => res.json(groups))
+    .then(groups => {
+      if(!groups)
+        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
+      res.json(groups);
+    })
     .catch(next);
 });
 
@@ -109,15 +121,19 @@ groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) =
   debug('GET: /api/groups/allpublic');
 
   Group.find({ privacy: 'public' })
-    .then(groups => res.json(groups))
+    .then(groups => {
+      if(!groups)
+        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
+      res.json(groups);
+    })
     .catch(next);
 });
 
-// http PUT :3000/api/group/:groupId/adduser 'Authorization:Bearer token'
-groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/:groupId/adduser');
+// http PUT :3000/api/group/:groupID/adduser 'Authorization:Bearer token'
+groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/group/:groupID/adduser');
 
-  Group.findById(req.params.groupId)
+  Group.findById(req.params.groupID)
     .then( group => {
       group.users.push(req.user._id);
       group.size = group.size + 1;
@@ -126,7 +142,7 @@ groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, ne
     .then( group => {
       Profile.findOne({ userID: req.user._id })
         .then( profile => {
-          profile.groups.push(req.params.groupId);
+          profile.groups.push(req.params.groupID);
           profile.save();
           res.json(group);
         })
@@ -135,11 +151,11 @@ groupRouter.put('/api/group/:groupId/adduser', bearerAuth, json(), (req, res, ne
     .catch(next);
 });
 
-// http PUT :3000/api/group/:groupId/removeuser 'Authorization:Bearer token'
-groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/:groupId/removeuser');
+// http PUT :3000/api/group/:groupID/removeuser 'Authorization:Bearer token'
+groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/group/:groupID/removeuser');
 
-  Group.findById(req.params.groupId)
+  Group.findById(req.params.groupID)
     .then( group => {
       group.users.pull(req.user._id);
       group.size = group.size - 1;
@@ -148,7 +164,7 @@ groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, json(), (req, res,
     .then( group => {
       Profile.findOne({ userID: req.user._id })
         .then( profile => {
-          profile.groups.pull(req.params.groupId).save()
+          profile.groups.pull(req.params.groupID).save()
             .then(() => {
               let returnObj = { groupUsers: group.users, profileGroups: profile.groups };
               res.json(returnObj);
@@ -159,9 +175,9 @@ groupRouter.put('/api/group/:groupId/removeuser', bearerAuth, json(), (req, res,
     .catch(next);
 });
 
-// http PUT :3000/api/group/:groupId 'Authorization:Bearer token'
-groupRouter.put('/api/group/:groupId', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/:groupId');
+// http PUT :3000/api/group/:groupID 'Authorization:Bearer token'
+groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/group/:groupID');
 
   let groupProperties = req.body.groupName 
    || req.body.privacy 
@@ -175,20 +191,20 @@ groupRouter.put('/api/group/:groupId', bearerAuth, json(), (req, res, next) => {
    || req.body.tags;
 
   if (!groupProperties) return next(createError(400, 'expected a request body'));
-  return Group.findById(req.params.groupId)
+  return Group.findById(req.params.groupID)
     .then( group => {
       if(group.owner.toString() !== req.user._id.toString()) return next(createError(403, 'forbidden access'));
-      Group.findByIdAndUpdate(req.params.groupId, req.body, {new: true})
+      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true})
         .then( group => res.json(group));
     })
     .catch(next);
 });
 
-// http DELETE :3000/api/group/:groupId 'Authorization:Bearer token'
-groupRouter.delete('/api/group/:groupId', bearerAuth, (req, res, next) => {
-  debug('DELETE: /api/group/:groupId');
+// http DELETE :3000/api/group/:groupID 'Authorization:Bearer token'
+groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
+  debug('DELETE: /api/group/:groupID');
 
-  return Group.findById(req.params.groupId)
+  return Group.findById(req.params.groupID)
     .then( group => {
       if(!group) throw createError(401);
       if(group.owner.toString() !== req.user._id.toString()) return next(createError(403, 'forbidden access'));
@@ -196,7 +212,7 @@ groupRouter.delete('/api/group/:groupId', bearerAuth, (req, res, next) => {
       group.users.forEach(function(groupUser) {
         profileUpdates.push(
           Profile.findOne({ userID: groupUser })
-            .then( user => user.groups.pull(req.params.groupId).save()));
+            .then( user => user.groups.pull(req.params.groupID).save()));
       });
       return Promise.all(profileUpdates)
         .then( () => group.remove())

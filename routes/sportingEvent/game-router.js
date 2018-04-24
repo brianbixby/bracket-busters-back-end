@@ -12,9 +12,9 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const gameRouter = module.exports = Router();
 
-// http POST :3000//api/sportingevent/:sportingeventId/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
-gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/sportingevent/:sportingeventId/game');
+// http POST :3000//api/sportingevent/:sportingeventID/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
+gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), (req, res, next) => {
+  debug('POST: /api/sportingevent/:sportingeventID/game');
 
   const { homeTeam, awayTeam, dateTime } = req.body;
   const message = !homeTeam ? 'expected a homeTeam'
@@ -24,7 +24,7 @@ gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), 
 
   if (message) return next(createError(400, message));
 
-  req.body.sportingEventID = req.params.sportingeventId;
+  req.body.sportingEventID = req.params.sportingeventID;
   
   new Game(req.body).save()
     .then( game => res.json(game))
@@ -37,16 +37,24 @@ gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, ne
   debug('POST:/api/games/:sportingEventID');
 
   Game.find( { _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
-    .then(games => res.json(games))
+    .then(games => {
+      if(!games)
+        return next(createError(404, 'NOT FOUND ERROR: games not found'));
+      res.json(games);
+    })
     .catch(next);
 });
 
-// http GET :3000/api/game/:gameId 'Authorization:Bearer token'
-gameRouter.get('/api/game/:gameId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/game/:gameId');
+// http GET :3000/api/game/:gameID 'Authorization:Bearer token'
+gameRouter.get('/api/game/:gameID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/game/:gameID');
 
-  Game.findById(req.params.gameId)
-    .then( game => res.json(game))
+  Game.findById(req.params.gameID)
+    .then( game => {
+      if(!game)
+        return next(createError(404, 'NOT FOUND ERROR: game not found'));
+      res.json(game);
+    })
     .catch(next);
 });
 
@@ -55,17 +63,21 @@ gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
   debug('GET: /api/games');
 
   Game.find()
-    .then(games => res.json(games))
+    .then(games => {
+      if(!games)
+        return next(createError(404, 'NOT FOUND ERROR: games not found'));
+      res.json(games);
+    })
     .catch(next);
 });
 
 
-// http PUT :3000/api/game/5aaa8ae6f2db6d1315d2934a 'Authorization:Bearer token' gameID='game._id' winner='team._id' loser='team._id' homeScore=50 awayScore=40 status='played'
-gameRouter.put('/api/game/:gameId', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/game/:gameId');
+// http PUT :3000/api/game/gameID 'Authorization:Bearer token' gameID='game._id' winner='team._id' loser='team._id' homeScore=50 awayScore=40 status='played'
+gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/game/:gameID');
 
   if (!req.body) return next(createError(400, 'expected a request body'));
-  let game = Game.findByIdAndUpdate(req.params.gameId, req.body, {new: true})
+  let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true})
     .then( updatedGame => {
       if(!req.body.winner) res.json(updatedGame);
       return game = updatedGame;
@@ -87,7 +99,7 @@ gameRouter.put('/api/game/:gameId', bearerAuth, json(), (req, res, next) => {
         .catch(next);
     })
     .then ( () => {
-      UserPick.find({ gameID: req.params.gameId })
+      UserPick.find({ gameID: req.params.gameID })
         .then( userPicks => {
           let scoreBoard2Update = [];
           userPicks.forEach(function(userPick) {
