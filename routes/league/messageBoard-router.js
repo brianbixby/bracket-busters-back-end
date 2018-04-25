@@ -9,6 +9,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const messageBoardRouter = module.exports = Router();
 
+// fetch a messageBoard by ID
 // http GET :3000/api/messageboard/:messageBoardID 'Authorization:Bearer token'
 messageBoardRouter.get('/api/messageboard/:messageBoardID', bearerAuth, (req, res, next) => {
   debug('GET: /api/messageboard/:messageBoardID');
@@ -22,7 +23,7 @@ messageBoardRouter.get('/api/messageboard/:messageBoardID', bearerAuth, (req, re
     .catch(next);
 });
 
-// get messageBoard by league ID
+// fetch messageBoard by league ID
 // http GET :3000/api/messageboard/league/:leagueID 'Authorization:Bearer token'
 messageBoardRouter.get('/api/messageboard/league/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/messageboard/league/:leagueID');
@@ -36,7 +37,7 @@ messageBoardRouter.get('/api/messageboard/league/:leagueID', bearerAuth, (req, r
     .catch(next);
 });
 
-// get messageBoard by group ID
+// fetch messageBoard by group ID
 // http GET :3000/api/messageboard/group/:groupID 'Authorization:Bearer token'
 messageBoardRouter.get('/api/messageboard/group/:groupID', bearerAuth, (req, res, next) => {
   debug('GET: /api/messageboard/group/:groupID');
@@ -50,6 +51,7 @@ messageBoardRouter.get('/api/messageboard/group/:groupID', bearerAuth, (req, res
     .catch(next);
 });
 
+// fetch all messageBoards
 // http GET :3000/api/messageboards 'Authorization:Bearer token'
 messageBoardRouter.get('/api/messageboards', bearerAuth, (req, res, next) => {
   debug('GET: /api/messageboards');

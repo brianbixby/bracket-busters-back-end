@@ -9,6 +9,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const userPickRouter = module.exports = Router();
 
+// creates a userpick specific to a user, game and league
 // http POST :3000/api/league/:leagueID/userpick 'Authorization:Bearer token' gameID='gameID' pick='pickID' gameTime='2018-03-16 23:37:52-0700'
 userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/league/:leagueID/userpick');
@@ -28,6 +29,7 @@ userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, 
     .catch(next);
 });
 
+// fetches a userpick by ID
 // http GET :3000/api/userpick/:userPickID 'Authorization:Bearer token'
 userPickRouter.get('/api/userpick/:userPickID', bearerAuth, (req, res, next) => {
   debug('GET: /api/userpick/:userPickID');
@@ -41,7 +43,7 @@ userPickRouter.get('/api/userpick/:userPickID', bearerAuth, (req, res, next) => 
     .catch(next);
 });
 
-// retrieves all users picks in specific league
+// retrieves all users picks in specific league for a user
 // http GET :3000/api/userpicks/:leagueID 'Authorization:Bearer token'
 userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/userpicks');
@@ -50,11 +52,13 @@ userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
     .then(userPicks => {
       if(!userPicks)
         return next(createError(404, 'NOT FOUND ERROR: userPicks not found'));
+      console.log('userpicks: ', userPicks);
       res.json(userPicks);
     })
     .catch(next);
 });
 
+// updates a user pick
 // http PUT :3000/api/userpick/:userPickID 'Authorization:Bearer token' pick='pickID'
 userPickRouter.put('/api/userpick/:userPickID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/userpick:userPickID');

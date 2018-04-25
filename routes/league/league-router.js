@@ -13,7 +13,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const leagueRouter = module.exports = Router();
 
-
+// creates a league
 // http POST :3000/api/sportingevent/:sportingeventID/league 'Authorization:Bearer token' leagueName='aaaawfaaaaa' privacy='a' poolSize=0 scoring='regular'
 leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json(), (req, res, next) => {
   debug(`POST: /api/sportingevent/:sportingeventID/league`);
@@ -48,21 +48,19 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
         .catch(next);
     })
     .then(() => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }}).save()
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }})
         .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
 });
 
-
-
-
-// add user to private league
+// add user to private league, actually put route
+// http POST :3000/api/league/private/adduser 'Authorization:Bearer token leagueName='leaguename' password='password'
 leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/league/private/adduser');
 
-  League.findOneAndUpdate({ leagueName: req.body.leagueName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true }).save()
+  League.findOneAndUpdate({ leagueName: req.body.leagueName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
     .then( league => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
       if (!scoreboard.leagueID || !scoreboard.userID )
@@ -72,15 +70,16 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
         .then(() => league)
         .catch(next);
     })
-    .then( league => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }}).save()
+    .then(league => {
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }})
         .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
 });
 
-// returns all leagues of logged in user, actually get route
+// fetches all leagues of a logged in user, actually get route
+// http GET :3000/api/groups/user 'Authorization:Bearer token'
 leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/leagues/user');
 
@@ -93,6 +92,8 @@ leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
     .catch(next);
 });
 
+// fetches a league by ID
+// http GET :3000/api/league/:leagueID 'Authorization:Bearer token'
 leagueRouter.get('/api/league/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/league/:leagueID');
 
@@ -105,6 +106,8 @@ leagueRouter.get('/api/league/:leagueID', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// fetches aLL LEAGUES
+// http GET :3000/api/leagues 'Authorization:Bearer token'
 leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
   debug('GET: /api/leagues');
 
@@ -117,6 +120,22 @@ leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// fetches all public leagues
+// http GET :3000/api/leagues/allpublic 'Authorization:Bearer token'
+leagueRouter.get('/api/leagues/allpublic', bearerAuth, (req, res, next) => {
+  debug('GET: /api/leagues/allpublic');
+  
+  League.find({ privacy: 'public' })
+    .then(leagues =>  {
+      if(!leagues)
+        return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
+      res.json(leagues);
+    })
+    .catch(next);
+});
+
+// league name availability check
+// http GET :3000/api/leagueNames/:leagueName
 leagueRouter.get('/api/leagueNames/:leagueName', (req, res, next) => {
   debug('GET: /api/leagueNames/:leagueName');
 
@@ -130,25 +149,13 @@ leagueRouter.get('/api/leagueNames/:leagueName', (req, res, next) => {
     .catch(next);
 });
 
-// returns all public leagues
-leagueRouter.get('/api/leagues/allpublic', bearerAuth, (req, res, next) => {
-  debug('GET: /api/leagues/allpublic');
-  
-  League.find({ privacy: 'public' })
-    .then(leagues =>  {
-      if(!leagues)
-        return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
-      res.json(leagues);
-    })
-    .catch(next);
-});
-
+// add a user to a league
 // http PUT :3000/api/league/:leagueID/adduser 'Authorization:Bearer token'
 leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueID/adduser');
 
-  League.findByIdAndUpdate(req.params.leagueID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true }).save()
-    .then( league => {
+  League.findByIdAndUpdate(req.params.leagueID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
+    .then(league => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
       if (!scoreboard.leagueID || !scoreboard.userID )
         return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
@@ -157,19 +164,20 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
         .then(() => league)
         .catch(next);
     })
-    .then( league => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }}).save()
-        .then( () => res.json(league))
+    .then(league => {
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }})
+        .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
 });
 
+// remove a user from a league
 // http PUT :3000/api/league/:leagueID/removeuser 'Authorization:Bearer token'
 leagueRouter.put('/api/league/:leagueID/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueID/removeuser');
 
-  League.findByIdAndUpdate(req.params.leagueID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true }).save()
+  League.findByIdAndUpdate(req.params.leagueID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true })
     .then( league => {
       return ScoreBoard.findOneAndRemove({ userID: req.user._id, leagueID: req.params.leagueID }).save()
         .then(() => league)
@@ -181,13 +189,14 @@ leagueRouter.put('/api/league/:leagueID/removeuser', bearerAuth, json(), (req, r
         .catch(next);
     })
     .then( league => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { leagues: league._id }}).save()
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { leagues: league._id }})
         .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
 });
 
+// updates a league's settings
 // http PUT :3000/api/league/:leagueID 'Authorization:Bearer token'
 leagueRouter.put('/api/league/:leagueID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueID');
@@ -214,20 +223,21 @@ leagueRouter.put('/api/league/:leagueID', bearerAuth, json(), (req, res, next) =
     return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
 
   League.findById(req.params.leagueID)
-    .then( league => {
+    .then(league => {
       if(!league)
         return next(createError(404, 'NOT FOUND ERROR: league not found'));
 
       if(league.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      League.findByIdAndUpdate(req.params.leagueID, req.body, {new: true, runValidators: true}).save()
+      League.findByIdAndUpdate(req.params.leagueID, req.body, {new: true, runValidators: true})
         .then( league => res.json(league))
         .catch(next);
     })
     .catch(next);
 });
 
+// delete a league
 // http DELETE :3000/api/league/:leagueID 'Authorization:Bearer token'
 leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
   debug('DELETE: /api/league/:leagueID');
@@ -240,8 +250,9 @@ leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
       if(league.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      return Profile.update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true}).save()
+      return Profile.update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true})
         .then(profile => console.log('array of updated ids: ', profile))
+        // PRE hook in league model to delete the comments, message board, scoreboard and userpicks first
         .then(() => league.remove())
         .catch(next);
     })
