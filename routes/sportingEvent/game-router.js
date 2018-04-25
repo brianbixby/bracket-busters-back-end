@@ -13,7 +13,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 const gameRouter = module.exports = Router();
 
 // create a new game
-// http POST :3000//api/sportingevent/:sportingeventID/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
+// http POST :3000/api/sportingevent/:sportingeventID/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
 gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/sportingevent/:sportingeventID/game');
 

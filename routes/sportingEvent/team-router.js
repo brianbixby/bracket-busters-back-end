@@ -24,7 +24,7 @@ teamRouter.post('/api/sportingevent/:sportingEventID/team', bearerAuth, json(), 
 });
 
 // fetch a a team by ID
-// http GET :3000/api/:teamID 'Authorization:Bearer TOKEN'
+// http GET :3000/api/team/:teamID 'Authorization:Bearer TOKEN'
 teamRouter.get('/api/team/:teamID', bearerAuth, (req, res, next) => {
   debug('GET: /api/team/:teamID');
 

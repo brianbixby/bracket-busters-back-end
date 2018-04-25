@@ -22,11 +22,11 @@ const groupSchema = mongoose.Schema({
 groupSchema.pre('remove', function(next) {
   MessageBoard.findOne({ groupID: this._id })
     .then( messageBoard => {
-      return Comment.remove({messageBoardID: messageBoard._id}).save()
+      return Comment.remove({messageBoardID: messageBoard._id}).exec()
         .catch(next);
     })
     .then(() => {
-      return MessageBoard.remove({groupID: this._id}).save()
+      return MessageBoard.remove({groupID: this._id}).exec()
         .catch(next);
     })
     .then(() => next())

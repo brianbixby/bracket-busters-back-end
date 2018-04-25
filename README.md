@@ -397,3 +397,5 @@ profile model birthdate
 
 user model rewrite with lexical arrows and eliminate the calls
 league model -->
+
+routes not working are group delete and have yet to test 2 game routes and league routes
