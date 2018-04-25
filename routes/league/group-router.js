@@ -34,8 +34,8 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
         .catch(next);
     })
     .then(() => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}).save()
-        .then( () => res.json(group))
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
+        .then(() => res.json(group))
         .catch(next);
     })
     .catch(next);
@@ -45,9 +45,9 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
 groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/private/adduser');
 
-  Group.findOneAndUpdate({ groupName: req.body.groupName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true }).save()
+  Group.findOneAndUpdate({ groupName: req.body.groupName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
     .then( group => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}).save()
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);
     })
@@ -122,9 +122,9 @@ groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) =
 groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupID/adduser');
 
-  Group.findByIdAndUpdate(req.params.groupID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true }).save()
+  Group.findByIdAndUpdate(req.params.groupID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
     .then( group => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}).save()
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);
     })
@@ -135,9 +135,9 @@ groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, ne
 groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/group/:groupID/removeuser');
 
-  Group.findByIdAndUpdate(req.params.groupID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true }).save()
+  Group.findByIdAndUpdate(req.params.groupID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true })
     .then( group => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { groups: group._id }}).save()
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);
     })
@@ -154,7 +154,8 @@ groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
    || req.body.motto 
    || req.body.createdOn 
    || req.body.image 
-   || req.body.owner 
+   || req.body.owner
+   || req.body.ownerName
    || req.body.password 
    || req.body.users 
    || req.body.tags;
@@ -170,7 +171,7 @@ groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
       if(group.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true, runValidators: true}).save()
+      Group.findByIdAndUpdate(req.params.groupID, req.body, {new: true, runValidators: true})
         .then( group => res.json(group))
         .catch(next);
     })

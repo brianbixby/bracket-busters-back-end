@@ -23,17 +23,14 @@ MessageBoard.findByIdAndAddComment = function(id, comment) {
       comment.messageBoardID = messageBoard._id;
       this.tempMessageBoard = messageBoard;
       return new Comment(comment).save()
-        .catch(next);
+        .catch( err => Promise.reject(createError(404, err.message)));
     })
     .then( comment => {
-      return this.tempMessageBoard.comments.push(comment._id)
-        .then(() => {
-          this.tempComment = comment;
-          return this.tempMessageBoard.save()
-            .catch(next);
-        })
-        .catch(next);
+      this.tempMessageBoard.comments.push(comment._id);
+      this.tempComment = comment;
+      return this.tempMessageBoard.save()
+        .catch( err => Promise.reject(createError(404, err.message)));
     })
-    .then(() => res.json(this.tempComment))
+    .then(() => this.tempComment)
     .catch( err => Promise.reject(createError(404, err.message)));
 };

@@ -51,9 +51,19 @@ teamRouter.get('/api/team', bearerAuth, (req, res, next) => {
 // http PUT :3000/api/team/:teamID 'Authorization:Bearer TOKEN' tags='new tag'
 teamRouter.put('/api/team/:teamID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/team:teamID');
-  
-  if (!req.body.teamName)
-    return next(createError(400, 'BAD REQUEST ERROR: expected a request body teamName'));
+
+  let teamProperties = req.body.teamName 
+  || req.body.sportingEventID 
+  || req.body.createdOn 
+  || req.body.image
+  || req.body.seed 
+  || req.body.wins 
+  || req.body.losses 
+  || req.body.pretournamentRecord
+  || req.body.tags;
+
+  if (!teamProperties)
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
     
   Team.findByIdAndUpdate(req.params.teamID, req.body, {new: true, runValidators: true})
     .then( team => res.json(team))
