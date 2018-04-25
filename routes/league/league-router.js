@@ -26,7 +26,7 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
           : null;
   
   if (message)
-    return next(createError(400, message));
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   req.body.owner = req.user._id;
   req.body.ownerName = req.user.username;
@@ -42,7 +42,7 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
     .then(() => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
       if (!scoreboard.leagueID || !scoreboard.userID )
-        return next(createError(400, 'expected a scoreboard leagueID and userID'));
+        return next(createError(400, 'BAD REQUEST ERROR: expected a scoreboard leagueID and userID'));
 
       return new ScoreBoard(scoreboard).save()
         .catch(next);
@@ -66,7 +66,7 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
     .then( league => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
       if (!scoreboard.leagueID || !scoreboard.userID )
-        return next(createError(400, 'expected a request body leagueID and userID'));
+        return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
 
       return new ScoreBoard(scoreboard).save()
         .then(() => league)
@@ -151,7 +151,7 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
     .then( league => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
       if (!scoreboard.leagueID || !scoreboard.userID )
-        return next(createError(400, 'expected a request body leagueID and userID'));
+        return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
 
       return new ScoreBoard(scoreboard).save()
         .then(() => league)
@@ -240,7 +240,7 @@ leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
       if(league.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      return Profile.Update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true}).save()
+      return Profile.update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true}).save()
         .then(profile => console.log('array of updated ids: ', profile))
         .then(() => league.remove())
         .catch(next);

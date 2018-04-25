@@ -14,7 +14,7 @@ commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, json
   debug('POST: /api/messageboard/:messageBoardID/comment'); 
 
   if (!req.body.content)
-    return next(createError(400, 'expected request body content'));
+    return next(createError(400, 'BAD REQUEST ERROR: expected request body content'));
     
   req.body.userID = req.user._id;
 

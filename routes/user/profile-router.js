@@ -43,7 +43,7 @@ profileRouter.put('/api/profile/:profileID', bearerAuth, json(), (req, res, next
   Profile.findByIdAndUpdate(req.params.profileID, req.body, {new: true, runValidators: true})
     .then( myProfile => {
       let usernameObj = {username: myProfile.username };
-      return User.findByIdAndUpdate(myProfile.userID, usernameObj, {new: true, runValidators: true})
+      return User.findByIdAndUpdate(myProfile.userID, usernameObj, {runValidators: true})
         .then(() => res.json(myProfile))
         .catch(next);
     })

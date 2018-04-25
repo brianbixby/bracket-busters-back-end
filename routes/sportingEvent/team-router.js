@@ -13,7 +13,9 @@ const teamRouter = module.exports = Router();
 teamRouter.post('/api/sportingevent/:sportingEventID/team', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/team');
 
-  if (!req.body.teamName) return next(createError(400, 'expected a request body teamName'));
+  if (!req.body.teamName)
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body teamName'));
+
   req.body.sportingEventID = req.params.sportingEventID;
   new Team(req.body).save()
     .then( team => res.json(team))
@@ -50,7 +52,9 @@ teamRouter.get('/api/team', bearerAuth, (req, res, next) => {
 teamRouter.put('/api/team/:teamID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/team:teamID');
   
-  if (!req.body.teamName) return next(createError(400, 'expected a request body teamName'));
+  if (!req.body.teamName)
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body teamName'));
+    
   Team.findByIdAndUpdate(req.params.teamID, req.body, {new: true, runValidators: true})
     .then( team => res.json(team))
     .catch(next);

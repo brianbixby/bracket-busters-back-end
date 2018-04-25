@@ -27,10 +27,22 @@ const leagueSchema = mongoose.Schema({
 
 leagueSchema.pre('remove', function(next) {
   MessageBoard.findOne({ leagueID: this._id })
-    .then( messageBoard => Comment.remove({messageBoardID: messageBoard._id}).save())
-    .then(() => MessageBoard.remove({leagueID: this._id}).save())
-    .then(() => ScoreBoard.remove({leagueID: this._id}).save())
-    .then(() => UserPick.remove({leagueID: this._id}).save())
+    .then( messageBoard => {
+      return Comment.remove({messageBoardID: messageBoard._id}).save()
+        .catch(next);
+    })
+    .then(() => {
+      return MessageBoard.remove({leagueID: this._id}).save()
+        .catch(next);
+    })
+    .then(() => {
+      return ScoreBoard.remove({leagueID: this._id}).save()
+        .catch(next);
+    })
+    .then(() => {
+      return UserPick.remove({leagueID: this._id}).save()
+        .catch(next);
+    })
     .then(() => next())
     .catch(next);
 });

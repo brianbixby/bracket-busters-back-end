@@ -20,7 +20,8 @@ authRouter.post('/api/signup', json(), (req, res, next) => {
       : !email ? 'expected an email'
         : null;
 
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   delete req.body.password;
 

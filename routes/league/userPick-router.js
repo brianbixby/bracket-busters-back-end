@@ -20,7 +20,7 @@ userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, 
         : null;
 
   if (message)
-    return next(createError(400, message));
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   req.body.userID = req.user._id;
   new UserPick(req.body).save()
@@ -67,7 +67,7 @@ userPickRouter.put('/api/userpick/:userPickID', bearerAuth, json(), (req, res, n
   || req.body.gameTime;
 
   if (!userPickProperties)
-    return next(createError(400, 'expected a request body'));
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
 
   UserPick.findByIdAndUpdate(req.params.userPickID, req.body, {new: true, runValidators: true})
     .then( userPick => res.json(userPick))

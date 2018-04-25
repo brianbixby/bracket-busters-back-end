@@ -21,12 +21,16 @@ const groupSchema = mongoose.Schema({
 
 groupSchema.pre('remove', function(next) {
   MessageBoard.findOne({ groupID: this._id })
-    .then( messageBoard => Comment.remove({messageBoardID: messageBoard._id}).save())
-    .then(() => MessageBoard.remove({groupID: this._id}).save())
+    .then( messageBoard => {
+      return Comment.remove({messageBoardID: messageBoard._id}).save()
+        .catch(next);
+    })
+    .then(() => {
+      return MessageBoard.remove({groupID: this._id}).save()
+        .catch(next);
+    })
     .then(() => next())
     .catch(next);
 });
 
 module.exports = mongoose.model('group', groupSchema);
-
-

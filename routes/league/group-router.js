@@ -21,7 +21,7 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
       : null;
   
   if (message)
-    return next(createError(400, message));
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   req.body.owner = req.user._id;
   req.body.users = req.user._id;
@@ -189,7 +189,7 @@ groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
       if(group.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      return Profile.Update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true}).save()
+      return Profile.update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true}).save()
         .then(profile => console.log('array of updated ids: ', profile))
         .then( () => group.remove())
         .catch(next);

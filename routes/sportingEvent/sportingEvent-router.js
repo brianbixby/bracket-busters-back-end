@@ -18,7 +18,8 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
     : !desc ? 'expected a desc'
       : null;
   
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
   
   new SportingEvent(req.body).save()
     .then( sportingEvent => res.json(sportingEvent))

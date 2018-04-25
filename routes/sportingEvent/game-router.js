@@ -22,7 +22,8 @@ gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), 
       : !dateTime ? 'expected an dateTime'
         : null;
 
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   req.body.sportingEventID = req.params.sportingeventID;
   
@@ -76,55 +77,43 @@ gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
 gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/game/:gameID');
 
-  if (!req.body) return next(createError(400, 'expected a request body'));
-  let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true})
+  let gameProperties = req.body.homeTeam 
+  || req.body.awayTeam
+  || req.body.dateTime
+  || req.body.weight
+  || req.body.homeScore 
+  || req.body.awayScore 
+  || req.body.status
+  || req.body.winner 
+  || req.body.loser
+  || req.body.sportingEventID
+  || req.body.tags;
+
+  if (!gameProperties)
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
+
+  let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true}).save()
     .then( updatedGame => {
-      if(!req.body.winner) res.json(updatedGame);
+      if(!req.body.winner)
+        res.json(updatedGame);
+
       return game = updatedGame;
     })
-    .then( () => {
-      Team.findById(game.winner)
-        .then( team => {
-          team.wins = team.wins + 1;
-          return team.save();
-        })
+    .then(() => {
+      return Team.findByIdAndUpdate(game.winner, { $inc: { wins: 1 }}).save()
         .catch(next);
     })
-    .then( () => {
-      Team.findById(game.loser)
-        .then( team => {
-          team.losses = team.losses + 1;
-          return team.save();
-        })
+    .then(() => {
+      return Team.findByIdAndUpdate(game.loser, { $inc: { losses: 1 }}).save()
         .catch(next);
     })
-    .then ( () => {
-      UserPick.find({ gameID: req.params.gameID })
-        .then( userPicks => {
-          let scoreBoard2Update = [];
-          userPicks.forEach(function(userPick) {
-            if(userPick.pick.toString() == game.winner.toString()) {
-              userPick.correct = true;
-              userPick.save()
-                .then(userPick => {
-                  ScoreBoard.findOne({ userID: userPick.userID, leagueID: userPick.leagueID })
-                    .then( newscoreBoard => {
-                      newscoreBoard.score += (10 * game.weight);
-                      return newscoreBoard.save();
-                    })
-                    .then(newscoreBoard => scoreBoard2Update.push(newscoreBoard))
-                    .catch(next);
-                })
-                .catch(next);
-            }           
-            else { 
-              userPick.correct = false;
-              return userPick.save();
-            }
-            return Promise.all(scoreBoard2Update)
-              .catch(next);
-          });
-        });
+    .then(() => {
+      return UserPick.update({ gameID: req.params.gameID, pick: game.winner }, { $set: { correct: true }}, {multi: true}).save()
+        .catch(next);
+    })
+    .then(userPicks => {
+      return ScoreBoard.update({ userID: { '$in': userPicks.userID }, leagueID: { '$in': userPicks.leagueID }}, { $inc: { score: 10 }}, {multi: true}).save()
+        .catch(next);
     })
     .then(() => res.send('success'))
     .catch(next);
