@@ -11,6 +11,7 @@ const Profile = require('../../model/user/profile.js');
 
 const authRouter = module.exports = Router();
 
+// create a user account
 // http POST :3000/api/signup username=username email=email@gmail.com password=password
 authRouter.post('/api/signup', json(), (req, res, next) => {
   debug('POST: /api/signup');
@@ -32,14 +33,15 @@ authRouter.post('/api/signup', json(), (req, res, next) => {
       user = myUser;
       return new Profile({userID: user._id, username: user.username}).save();
     })
-    .then( () => user.generateToken())
-    .then( token => {
+    .then(() => user.generateToken())
+    .then(token => {
       res.cookie('Bracket-Busters-Token', token, {maxAge: 604800000});
       res.send(token);
     })
     .catch(next);
 });
 
+// signin to a user account
 // http -a username:password :3000/api/signin
 authRouter.get('/api/signin', basicAuth, (req, res, next) => {
   debug('GET: /api/signin');
@@ -67,7 +69,7 @@ authRouter.get('/api/signin', basicAuth, (req, res, next) => {
     .catch(next);
 });
 
-// http GET :3000/api/signin/token 'Authorization:Bearer TOKEN'
+// token signin, validates token and keeps users signedin
 authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
   debug('GET: /api/signin/token');
 
@@ -93,6 +95,7 @@ authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// username availability check
 // http GET :3000/api/signup/usernames/username
 authRouter.get('/api/signup/usernames/:username', (req, res, next) => {
   User.findOne({username: req.params.username})

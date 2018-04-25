@@ -18,19 +18,11 @@ const MessageBoard = module.exports = mongoose.model('messageBoard', messageBoar
 MessageBoard.findByIdAndAddComment = function(id, comment) {
   debug('findbyidandaddcomment');
 
-  return MessageBoard.findById(id)
-    .then( messageBoard => {
-      comment.messageBoardID = messageBoard._id;
-      this.tempMessageBoard = messageBoard;
-      return new Comment(comment).save()
+  return new Comment(comment).save()
+    .then(newComment => {
+      return MessageBoard.findByIdAndUpdate(id, { $push: { comments: newComment._id }})
+        .then(() => newComment)
         .catch( err => Promise.reject(createError(404, err.message)));
     })
-    .then( comment => {
-      this.tempMessageBoard.comments.push(comment._id);
-      this.tempComment = comment;
-      return this.tempMessageBoard.save()
-        .catch( err => Promise.reject(createError(404, err.message)));
-    })
-    .then(() => this.tempComment)
     .catch( err => Promise.reject(createError(404, err.message)));
 };

@@ -10,6 +10,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const profileRouter = module.exports = Router();
 
+// get a user's profile by profile ID
 // http GET :3000/api/profile/:profileID 'Authorization:Bearer TOKEN'
 profileRouter.get('/api/profile/:profileID', bearerAuth, (req, res, next) => {
   debug('GET: /api/profile/:profileID');
@@ -24,6 +25,7 @@ profileRouter.get('/api/profile/:profileID', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// get current users profile
 // http GET :3000/api/profiles/currentuser 'Authorization:Bearer TOKEN'
 profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
   Profile.findOne({userID: req.user._id})
@@ -35,6 +37,7 @@ profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
+// update profile
 // http PUT :3000/api/profile/:profileID 'Authorization:Bearer TOKEN' username='new username'
 profileRouter.put('/api/profile/:profileID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/profile:profileID');

@@ -9,6 +9,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const sportingEventRouter = module.exports = Router();
 
+// create a sporting event
 // http POST :3000/api/sportingEvent 'Authorization:Bearer TOKEN' sportingEventName='a' desc='a'
 sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/sportingEvent');
@@ -26,6 +27,7 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
     .catch(next);
 });
 
+// fetch a sporting event by ID
 // http GET :3000/api/sportingevent/:sportingEventID 'Authorization:Bearer TOKEN'
 sportingEventRouter.get('/api/sportingevent/:sportingEventID', bearerAuth, (req, res, next) => {
   debug('GET: /api/sportingEvent/:sportingEventID');
@@ -39,6 +41,7 @@ sportingEventRouter.get('/api/sportingevent/:sportingEventID', bearerAuth, (req,
     .catch(next);
 });
 
+// fetch all sporting events
 // http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
 sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
   debug('GET: /api/sportingevents');
