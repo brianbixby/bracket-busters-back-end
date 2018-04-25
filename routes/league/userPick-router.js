@@ -19,7 +19,8 @@ userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, 
       : !gameTime ? 'expected an gameTime'
         : null;
 
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, message));
 
   req.body.userID = req.user._id;
   new UserPick(req.body).save()
@@ -58,8 +59,6 @@ userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
 userPickRouter.put('/api/userpick/:userPickID', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/userpick:userPickID');
 
-  if (!req.body) return next(createError(400, 'expected a request body'));
-
   let userPickProperties = req.body.userID 
   || req.body.leagueID 
   || req.body.gameID 
@@ -67,7 +66,8 @@ userPickRouter.put('/api/userpick/:userPickID', bearerAuth, json(), (req, res, n
   || req.body.correct 
   || req.body.gameTime;
 
-  if (!userPickProperties) return next(createError(400, 'expected a request body'));
+  if (!userPickProperties)
+    return next(createError(400, 'expected a request body'));
 
   UserPick.findByIdAndUpdate(req.params.userPickID, req.body, {new: true, runValidators: true})
     .then( userPick => res.json(userPick))

@@ -49,7 +49,7 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
     })
     .then(() => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }}).save()
-        .then( () => res.json(league))
+        .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
@@ -74,7 +74,7 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
     })
     .then( league => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }}).save()
-        .then( () => res.json(league))
+        .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
@@ -182,7 +182,7 @@ leagueRouter.put('/api/league/:leagueID/removeuser', bearerAuth, json(), (req, r
     })
     .then( league => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { leagues: league._id }}).save()
-        .then( () => res.json(league))
+        .then(() => res.json(league))
         .catch(next);
     })
     .catch(next);
@@ -240,9 +240,9 @@ leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
       if(league.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      Profile.Update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true}).save()
+      return Profile.Update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true}).save()
         .then(profile => console.log('array of updated ids: ', profile))
-        .then( () => league.remove())
+        .then(() => league.remove())
         .catch(next);
     })
     .then(() => res.status(204).send())

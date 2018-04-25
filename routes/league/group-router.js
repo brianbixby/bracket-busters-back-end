@@ -189,7 +189,7 @@ groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
       if(group.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      Profile.Update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true}).save()
+      return Profile.Update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true}).save()
         .then(profile => console.log('array of updated ids: ', profile))
         .then( () => group.remove())
         .catch(next);

@@ -13,7 +13,9 @@ const commentRouter = module.exports = Router();
 commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/messageboard/:messageBoardID/comment'); 
 
-  if (!req.body.content) return next(createError(400, 'expected a request body userID and content'));
+  if (!req.body.content)
+    return next(createError(400, 'expected request body content'));
+    
   req.body.userID = req.user._id;
 
   MessageBoard.findByIdAndAddComment(req.params.messageBoardID, req.body)

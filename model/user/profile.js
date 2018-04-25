@@ -25,10 +25,17 @@ const Profile = module.exports = mongoose.model('profile', profileSchema);
 
 Profile.findByuserIDAndAddLeague = function(uid, lid) {
   debug('findByuserIDAndAddLeague');
-  return Profile.findOne({ userID: uid })
-    .then( profile => {
-      profile.leagues.push(lid);
-      return profile.save();
-    })
+
+  return Profile.findOneAndUpdate({ userID: uid }, { $push: { leagues: lid }}, {new: true}).save()
     .catch( err => Promise.reject(createError(404, err.message)));
+
+  // return Profile.findOne({ userID: uid })
+  //   .then( profile => {
+  //     profile.leagues.push(lid);
+  //     return profile.save();
+  //   })
+  //   .catch( err => Promise.reject(createError(404, err.message)));
 };
+
+
+
