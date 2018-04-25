@@ -18,7 +18,16 @@ const leagueRouter = module.exports = Router();
 leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json(), (req, res, next) => {
   debug(`POST: /api/sportingevent/:sportingeventID/league`);
 
-  if (!req.body.leagueName || !req.body.scoring || !req.body.poolSize || !req.body.privacy) return next(createError(400, 'expected a request body  leagueName, sportingeventID, owner, scoring, poolSize and privacy'));
+  const { leagueName, scoring, poolSize, privacy } = req.body;
+  const message = !leagueName ? 'expected a leagueName'
+    : !scoring ? 'expected a scoring'
+      : !poolSize ? 'expected a poolSize'
+        : !privacy ? 'expected privacy'
+          : null;
+  
+  if (message)
+    return next(createError(400, message));
+
   req.body.owner = req.user._id;
   req.body.ownerName = req.user.username;
   req.body.users = req.user._id;
@@ -27,14 +36,18 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
   let league = new League(req.body).save()
     .then( myLeague => {
       league = myLeague;
-      return new MessageBoard({ leagueID: league._id }).save();
+      return new MessageBoard({ leagueID: league._id }).save()
+        .catch(next);
     })
-    .then( () => {
+    .then(() => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
-      if (!scoreboard.leagueID || !scoreboard.userID ) return next(createError(400, 'expected a request body leagueID and userID'));
-      return new ScoreBoard(scoreboard).save();
+      if (!scoreboard.leagueID || !scoreboard.userID )
+        return next(createError(400, 'expected a scoreboard leagueID and userID'));
+
+      return new ScoreBoard(scoreboard).save()
+        .catch(next);
     })
-    .then( () => {
+    .then(() => {
       return Profile.findOne({ userID: req.user._id })
         .catch( err => Promise.reject(createError(404, err.message)))
         .then( profile => {

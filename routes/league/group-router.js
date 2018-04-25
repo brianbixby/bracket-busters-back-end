@@ -17,10 +17,11 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
 
   const { groupName, privacy } = req.body;
   const message = !groupName ? 'expected a groupName'
-    : !privacy ? 'expected a privacy'
+    : !privacy ? 'expected privacy'
       : null;
   
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, message));
 
   req.body.owner = req.user._id;
   req.body.users = req.user._id;
@@ -32,23 +33,13 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
       return new MessageBoard({ groupID: group._id }).save()
         .catch(next);
     })
-    .then( () => {
+    .then(() => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}, { new: true }).save()
         .then( () => res.json(group))
         .catch(next);
-      // return Profile.findOne({ userID: req.user._id })
-      //   .then( profile => {
-      //     profile.groups.push(group._id)
-      //       .then(profile => profile.save())
-      //       .catch(next);
-      //   })
-      //   .catch( err => Promise.reject(createError(404, err.message)));
     })
-    // .then( () => res.json(group))
     .catch(next);
 }); 
-
-
 
 // add user to private group
 groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
@@ -61,26 +52,7 @@ groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, ne
         .catch(next);
     })
     .catch(next);
-
-  // Group.findOne({ groupName: req.body.groupName, password: req.body.password })
-  //   .then( group => {
-  //     group.size = group.size + 1;
-  //     return group.users.push(req.user._id)
-  //       .then(group => group.save())
-  //       .catch(next);
-  //   })
-  //   .then( group => {
-  //     Profile.findOne({ userID: req.user._id })
-  //       .then( profile => {
-  //         profile.groups.push(req.params.groupId).save()
-  //           .then(() => res.json(group));
-  //       })
-  //       .catch( err => Promise.reject(createError(404, err.message)));
-  //   })
-  //   .catch(next);
 });
-
-
 
 // returns all groups of logged in user, actually get route
 groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
@@ -189,6 +161,7 @@ groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
 
   if (!groupProperties)
     return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
+
   Group.findById(req.params.groupID)
     .then( group => {
       if(!group)
@@ -220,16 +193,6 @@ groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
         .then(profile => console.log('array of updated ids: ', profile))
         .then( () => group.remove())
         .catch(next);
-      // let profileUpdates = [];
-      // group.users.forEach(function(groupUser) {
-      //   Profile.findOne({ userID: groupUser })
-      //     .then( profile => profile.groups.pull(req.params.groupID).save())
-      //     .then(profile => profileUpdates.push(profile))
-      //     .catch(next);
-      // });
-      // return Promise.all(profileUpdates)
-      //   .then( () => group.remove())
-      //   .catch(next);
     })
     .then(() => res.status(204).send())
     .catch(next);
