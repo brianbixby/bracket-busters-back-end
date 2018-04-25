@@ -1,12 +1,11 @@
 'use strict';
 
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 
 const commentSchema = mongoose.Schema({
   userID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },
   username: {type: String, required: true },
-  image: String ,
+  image: String,
   messageBoardID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'messageBoard' },
   content: { type: String, required: true },
   createdOn: { type: Date, default: Date.now },

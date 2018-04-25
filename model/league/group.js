@@ -1,7 +1,6 @@
 'use strict';
 
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 const MessageBoard = require('./messageBoard.js');
 const Comment = require('./comment.js');
 
@@ -23,13 +22,15 @@ const groupSchema = mongoose.Schema({
 groupSchema.pre('remove', function(next) {
   MessageBoard.findOne({ groupID: this._id })
     .then( messageBoard => {
-      Comment.remove({messageBoardID: messageBoard._id}).exec();
+      return Comment.remove({messageBoardID: messageBoard._id}).save()
+        .catch(next);
     })
+    .then(() => {
+      return MessageBoard.remove({groupID: this._id}).save()
+        .catch(next);
+    })
+    .then(() => next())
     .catch(next);
-  MessageBoard.remove({groupID: this._id}).exec();
-  next();
 });
 
 module.exports = mongoose.model('group', groupSchema);
-
-

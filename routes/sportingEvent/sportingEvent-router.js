@@ -9,7 +9,7 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const sportingEventRouter = module.exports = Router();
 
-// http POST :3000/api/sportingEvent 'Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6IjdjYWZmYTg1ZDlkZTM4YmM1ZTA5YjJhN2EyZWUyMzBiNWY0Y2ViM2UxYzM5MjE2YzNmMTUwNzUyZTVlMWUzMzMiLCJpYXQiOjE1MjA5MDQxNjB9.yhuxsiOaYoPtdCtYgGm8RHBjeQNfOIbSjbzCMSjIuQQ' sportingEventName='a' desc='a'
+// http POST :3000/api/sportingEvent 'Authorization:Bearer TOKEN' sportingEventName='a' desc='a'
 sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/sportingEvent');
 
@@ -18,19 +18,24 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
     : !desc ? 'expected a desc'
       : null;
   
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
   
   new SportingEvent(req.body).save()
     .then( sportingEvent => res.json(sportingEvent))
     .catch(next);
 });
 
-// http GET :3000/api/sportingevent/:sportingEventId 'Authorization:Bearer TOKEN'
-sportingEventRouter.get('/api/sportingevent/:sportingEventId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/sportingEvent/:sportingEventId');
+// http GET :3000/api/sportingevent/:sportingEventID 'Authorization:Bearer TOKEN'
+sportingEventRouter.get('/api/sportingevent/:sportingEventID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/sportingEvent/:sportingEventID');
 
-  SportingEvent.findById(req.params.sportingEventId)
-    .then( sportingEvent => res.json(sportingEvent))
+  SportingEvent.findById(req.params.sportingEventID)
+    .then( sportingEvent => {
+      if(!sportingEvent)
+        return next(createError(404, 'NOT FOUND ERROR: sportingEvent not found'));
+      res.json(sportingEvent);
+    })
     .catch(next);
 });
 
@@ -39,6 +44,10 @@ sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
   debug('GET: /api/sportingevents');
 
   SportingEvent.find()
-    .then(sportingEvents => res.json(sportingEvents))
+    .then(sportingEvents => {
+      if(!sportingEvents)
+        return next(createError(404, 'NOT FOUND ERROR: sportingEvents not found'));
+      res.json(sportingEvents);
+    })
     .catch(next);
 });

@@ -2,6 +2,7 @@
 
 const Router = require('express').Router;
 const debug = require('debug')('bracketbusters:scoreBoard-router');
+const createError = require('http-errors');
 
 const ScoreBoard = require('../../model/league/scoreBoard.js');
 const bearerAuth = require('../../lib/bearer-auth-middleware.js');
@@ -14,16 +15,24 @@ scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, (req, res, next) 
   
   ScoreBoard.find({ leagueID: req.params.leagueID }).populate({path: 'userID', select: 'username'}) 
     .sort('score')
-    .then(scoreBoards =>  res.json(scoreBoards))
+    .then(scoreBoards =>  {
+      if(!scoreBoards)
+        return next(createError(404, 'NOT FOUND ERROR: scoreBoards not found'));
+      res.json(scoreBoards);
+    })
     .catch(next);
 });
 
-// http GET :3000/api/scoreboard/:scoreBoardId 'Authorization:Bearer token'
-scoreBoardRouter.get('/api/scoreboard/:scoreBoardId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/scoreboard/:scoreBoardId');
+// http GET :3000/api/scoreboard/:scoreBoardID 'Authorization:Bearer token'
+scoreBoardRouter.get('/api/scoreboard/:scoreBoardID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/scoreboard/:scoreBoardID');
 
-  ScoreBoard.findById(req.params.scoreBoardId)
-    .then( scoreBoard => res.json(scoreBoard))
+  ScoreBoard.findById(req.params.scoreBoardID)
+    .then( scoreBoard => {
+      if(!scoreBoard)
+        return next(createError(404, 'NOT FOUND ERROR: scoreBoard not found'));
+      res.json(scoreBoard);
+    })
     .catch(next);
 });
 
@@ -32,6 +41,10 @@ scoreBoardRouter.get('/api/scoreboards', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboards');
 
   ScoreBoard.find()
-    .then(scoreboards => res.json(scoreboards))
+    .then(scoreBoards => {
+      if(!scoreBoards)
+        return next(createError(404, 'NOT FOUND ERROR: scoreBoards not found'));
+      res.json(scoreBoards);
+    })
     .catch(next);
 });

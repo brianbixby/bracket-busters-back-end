@@ -10,29 +10,16 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const profileRouter = module.exports = Router();
 
-// http GET :3000/api/profile/:profileId 'Authorization:Bearer TOKEN'
-profileRouter.get('/api/profile/:profileId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/profile/:profileId');
+// http GET :3000/api/profile/:profileID 'Authorization:Bearer TOKEN'
+profileRouter.get('/api/profile/:profileID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/profile/:profileID');
 
-  Profile.findById(req.params.profileId)
+  Profile.findById(req.params.profileID)
     .then(profile => {
-      if(!profile) throw createError(401);
+      if(!profile)
+        return next(createError(404, 'NOT FOUND ERROR: profile not found'));
+      // throw createError(401);
       res.json(profile);
-    })
-    .catch(next);
-});
-
-// http PUT :3000/api/profile/:profileId 'Authorization:Bearer TOKEN' username='new username'
-profileRouter.put('/api/profile/:profileId', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/profile:profileId');
-
-  req.body.lastLogin = new Date();
-  Profile.findByIdAndUpdate(req.params.profileId, req.body, { new: true })
-    .then( myProfile => {
-      let usernameObj = {username: myProfile.username };
-      return User.findByIdAndUpdate(myProfile.userID, usernameObj, {new: true})
-        .then(() => res.json(myProfile))
-        .catch(next);
     })
     .catch(next);
 });
@@ -44,6 +31,21 @@ profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
       if(!profile)
         return next(createError(404, 'NOT FOUND ERROR: profile not found'));
       res.json(profile);
+    })
+    .catch(next);
+});
+
+// http PUT :3000/api/profile/:profileID 'Authorization:Bearer TOKEN' username='new username'
+profileRouter.put('/api/profile/:profileID', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/profile:profileID');
+
+  req.body.lastLogin = new Date();
+  Profile.findByIdAndUpdate(req.params.profileID, req.body, {new: true, runValidators: true})
+    .then( myProfile => {
+      let usernameObj = {username: myProfile.username };
+      return User.findByIdAndUpdate(myProfile.userID, usernameObj, {runValidators: true})
+        .then(() => res.json(myProfile))
+        .catch(next);
     })
     .catch(next);
 });

@@ -379,3 +379,21 @@ MIT. Use it up!
 
 MONGODB_URI='mongodb://localhost/sportsapptest'
 MONGODB_URI='mongodb://heroku_5s3dhwdr:vm0d8l4q47rb9psbn1o247o2in@ds263138.mlab.com:63138/heroku_5s3dhwdr'
+
+
+<!-- to do promisify server file use sluggram backend
+
+profile is username change check to make sure it's unique
+game router add the sportingevent id to the find Game.find( {sportingEventID: req.params.sportingEventID })
+
+game async on put route
+
+group groupRouter.delete('/api/group/:groupId'
+  map instead of forEach
+
+league, models, tests
+
+profile model birthdate
+
+user model rewrite with lexical arrows and eliminate the calls
+league model -->

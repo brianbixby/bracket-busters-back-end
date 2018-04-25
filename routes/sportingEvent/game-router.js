@@ -12,9 +12,9 @@ const bearerAuth = require('../../lib/bearer-auth-middleware.js');
 
 const gameRouter = module.exports = Router();
 
-// http POST :3000//api/sportingevent/:sportingeventId/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
-gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/sportingevent/:sportingeventId/game');
+// http POST :3000//api/sportingevent/:sportingeventID/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
+gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), (req, res, next) => {
+  debug('POST: /api/sportingevent/:sportingeventID/game');
 
   const { homeTeam, awayTeam, dateTime } = req.body;
   const message = !homeTeam ? 'expected a homeTeam'
@@ -22,30 +22,13 @@ gameRouter.post('/api/sportingevent/:sportingeventId/game', bearerAuth, json(), 
       : !dateTime ? 'expected an dateTime'
         : null;
 
-  if (message) return next(createError(400, message));
+  if (message)
+    return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
-  req.body.sportingEventID = req.params.sportingeventId;
+  req.body.sportingEventID = req.params.sportingeventID;
   
   new Game(req.body).save()
     .then( game => res.json(game))
-    .catch(next);
-});
-
-// http GET :3000/api/game/:gameId 'Authorization:Bearer token'
-gameRouter.get('/api/game/:gameId', bearerAuth, (req, res, next) => {
-  debug('GET: /api/game/:gameId');
-
-  Game.findById(req.params.gameId)
-    .then( game => res.json(game))
-    .catch(next);
-});
-
-// http GET :3000/api/games 'Authorization:Bearer token'
-gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
-  debug('GET: /api/games');
-
-  Game.find()
-    .then(games => res.json(games))
     .catch(next);
 });
 
@@ -55,60 +38,82 @@ gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, ne
   debug('POST:/api/games/:sportingEventID');
 
   Game.find( { _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
-    .then(games => res.json(games))
+    .then(games => {
+      if(!games)
+        return next(createError(404, 'NOT FOUND ERROR: games not found'));
+      res.json(games);
+    })
+    .catch(next);
+});
+
+// http GET :3000/api/game/:gameID 'Authorization:Bearer token'
+gameRouter.get('/api/game/:gameID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/game/:gameID');
+
+  Game.findById(req.params.gameID)
+    .then( game => {
+      if(!game)
+        return next(createError(404, 'NOT FOUND ERROR: game not found'));
+      res.json(game);
+    })
+    .catch(next);
+});
+
+// http GET :3000/api/games 'Authorization:Bearer token'
+gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
+  debug('GET: /api/games');
+
+  Game.find()
+    .then(games => {
+      if(!games)
+        return next(createError(404, 'NOT FOUND ERROR: games not found'));
+      res.json(games);
+    })
     .catch(next);
 });
 
 
-// http PUT :3000/api/game/5aaa8ae6f2db6d1315d2934a 'Authorization:Bearer token' gameID='game._id' winner='team._id' loser='team._id' homeScore=50 awayScore=40 status='played'
-gameRouter.put('/api/game/:gameId', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/game/:gameId');
+// http PUT :3000/api/game/gameID 'Authorization:Bearer token' gameID='game._id' winner='team._id' loser='team._id' homeScore=50 awayScore=40 status='played'
+gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/game/:gameID');
 
-  if (!req.body) return next(createError(400, 'expected a request body'));
-  let game = Game.findByIdAndUpdate(req.params.gameId, req.body, {new: true})
+  let gameProperties = req.body.homeTeam 
+  || req.body.awayTeam
+  || req.body.dateTime
+  || req.body.weight
+  || req.body.homeScore 
+  || req.body.awayScore 
+  || req.body.status
+  || req.body.winner 
+  || req.body.loser
+  || req.body.sportingEventID
+  || req.body.tags;
+
+  if (!gameProperties)
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
+
+  let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true}).save()
     .then( updatedGame => {
-      if(!req.body.winner) res.json(updatedGame);
+      if(!req.body.winner)
+        res.json(updatedGame);
+
       return game = updatedGame;
     })
-    .then( () => {
-      Team.findById(game.winner)
-        .then( team => {
-          team.wins = team.wins + 1;
-          return team.save();
-        })
+    .then(() => {
+      return Team.findByIdAndUpdate(game.winner, { $inc: { wins: 1 }}).save()
         .catch(next);
     })
-    .then( () => {
-      Team.findById(game.loser)
-        .then( team => {
-          team.losses = team.losses + 1;
-          return team.save();
-        })
+    .then(() => {
+      return Team.findByIdAndUpdate(game.loser, { $inc: { losses: 1 }}).save()
         .catch(next);
     })
-    .then ( () => {
-      UserPick.find({ gameID: req.params.gameId })
-        .then( userPicks => {
-          let scoreBoard2Update = [];
-          userPicks.forEach(function(userPick) {
-            if(userPick.pick.toString() == game.winner.toString()) {
-              userPick.correct = true;
-              userPick.save();
-              scoreBoard2Update.push(
-                ScoreBoard.findOne({ userID: userPick.userID, leagueID: userPick.leagueID })
-                  .then( newscoreBoard => {
-                    newscoreBoard.score += (1 * game.weight);
-                    return newscoreBoard.save();
-                  }));
-            }           
-            else { 
-              userPick.correct = false;
-              return userPick.save();
-            }
-            return Promise.all(scoreBoard2Update)
-              .catch(next);
-          });
-        });
+    .then(() => {
+      return UserPick.update({ gameID: req.params.gameID, pick: game.winner }, { $set: { correct: true }}, {multi: true}).save()
+        .catch(next);
+    })
+    .then(userPicks => {
+      return ScoreBoard.update({ userID: { '$in': userPicks.userID }, leagueID: { '$in': userPicks.leagueID }}, { $inc: { score: 10 }}, {multi: true}).save()
+        .catch(next);
     })
     .then(() => res.send('success'))
     .catch(next);
