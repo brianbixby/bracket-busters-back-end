@@ -34,7 +34,7 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
         .catch(next);
     })
     .then(() => {
-      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}, { new: true }).save()
+      Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }}).save()
         .then( () => res.json(group))
         .catch(next);
     })
