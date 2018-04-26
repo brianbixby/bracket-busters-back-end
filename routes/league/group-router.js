@@ -203,7 +203,6 @@ groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
       return Profile.update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true})
-        .then(profile => console.log('array of updated ids: ', profile))
         // PRE hook in group model to delete the comments and message board first
         .then(() => group.remove())
         .catch(next);
