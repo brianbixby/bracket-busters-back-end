@@ -46,7 +46,7 @@ commentRouter.get('/api/comment/:commentID', bearerAuth, (req, res, next) => {
   debug('GET: /api/comment/:commentID');
 
   Comment.findById(req.params.commentID)
-    .then( comment => {
+    .then(comment => {
       if(!comment)
         return next(createError(404, 'NOT FOUND ERROR: comment not found'));
       res.json(comment);

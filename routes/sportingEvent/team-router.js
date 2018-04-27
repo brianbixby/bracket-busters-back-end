@@ -19,6 +19,6 @@ teamRouter.post('/api/sportingevent/:sportingEventID/team', bearerAuth, json(), 
 
   req.body.sportingEventID = req.params.sportingEventID;
   new Team(req.body).save()
-    .then( team => res.json(team))
+    .then(team => res.json(team))
     .catch(next);
 });

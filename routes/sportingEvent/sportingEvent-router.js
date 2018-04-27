@@ -23,6 +23,6 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
     return next(createError(400, `BAD REQUEST ERROR: ${message}`));
   
   new SportingEvent(req.body).save()
-    .then( sportingEvent => res.json(sportingEvent))
+    .then(sportingEvent => res.json(sportingEvent))
     .catch(next);
 });

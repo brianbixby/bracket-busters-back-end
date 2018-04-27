@@ -34,7 +34,7 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
   req.body.sportingEventID = req.params.sportingeventID;
  
   let league = new League(req.body).save()
-    .then( myLeague => {
+    .then(myLeague => {
       league = myLeague;
       return new MessageBoard({ leagueID: league._id }).save()
         .catch(next);
@@ -61,12 +61,12 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
   debug('POST: /api/league/private/adduser');
 
   League.findOneAndUpdate({ leagueName: req.body.leagueName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
-    .then( league => {
+    .then(league => {
       let scoreboard = { leagueID: league._id, userID: req.user._id };
       if (!scoreboard.leagueID || !scoreboard.userID )
         return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
 
-      return new ScoreBoard(scoreboard).save()
+      new ScoreBoard(scoreboard).save()
         .then(() => league)
         .catch(next);
     })
@@ -98,7 +98,7 @@ leagueRouter.get('/api/league/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/league/:leagueID');
 
   League.findById(req.params.leagueID)
-    .then( league => {
+    .then(league => {
       if(!league)
         return next(createError(404, 'NOT FOUND ERROR: league not found'));
       res.json(league);
@@ -126,10 +126,9 @@ leagueRouter.get('/api/leagueNames/:leagueName', (req, res, next) => {
   debug('GET: /api/leagueNames/:leagueName');
 
   League.findOne({ leagueName: req.params.leagueName })
-    .then( league => {
-      if(!league) {
+    .then(league => {
+      if(!league)
         return res.sendStatus(200);
-      }
       return res.sendStatus(409);
     })
     .catch(next);
@@ -146,7 +145,7 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
       if (!scoreboard.leagueID || !scoreboard.userID )
         return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
 
-      return new ScoreBoard(scoreboard).save()
+      new ScoreBoard(scoreboard).save()
         .then(() => league)
         .catch(next);
     })
@@ -164,17 +163,17 @@ leagueRouter.put('/api/league/:leagueID/removeuser', bearerAuth, json(), (req, r
   debug('PUT: /api/league/:leagueID/removeuser');
 
   League.findByIdAndUpdate(req.params.leagueID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true })
-    .then( league => {
-      return ScoreBoard.findOneAndRemove({ userID: req.user._id, leagueID: req.params.leagueID })
+    .then(league => {
+      ScoreBoard.findOneAndRemove({ userID: req.user._id, leagueID: req.params.leagueID })
         .then(() => league)
         .catch(next);
     })
-    .then( league => {
-      return UserPick.remove({ userID: req.user._id, leagueID: req.params.leagueID })
+    .then(league => {
+      UserPick.remove({ userID: req.user._id, leagueID: req.params.leagueID })
         .then(() => league)
         .catch(next);
     })
-    .then( league => {
+    .then(league => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { leagues: league._id }})
         .then(() => res.json(league))
         .catch(next);
@@ -217,7 +216,7 @@ leagueRouter.put('/api/league/:leagueID', bearerAuth, json(), (req, res, next) =
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
       League.findByIdAndUpdate(req.params.leagueID, req.body, {new: true, runValidators: true})
-        .then( league => res.json(league))
+        .then(league => res.json(league))
         .catch(next);
     })
     .catch(next);
@@ -236,7 +235,7 @@ leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
       if(league.owner.toString() !== req.user._id.toString())
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
-      return Profile.update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true})
+      Profile.update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true})
         // PRE hook in league model to delete the comments, message board, scoreboard and userpicks first
         .then(() => league.remove())
         .catch(next);

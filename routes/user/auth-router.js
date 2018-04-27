@@ -21,15 +21,15 @@ authRouter.post('/api/signup', json(), (req, res, next) => {
       : !email ? 'expected an email'
         : null;
 
-  if (message)
+  if(message)
     return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   delete req.body.password;
 
   let user = new User(req.body);
   user.generatePasswordHash(password)
-    .then( user => user.save())
-    .then( myUser => {
+    .then(user => user.save())
+    .then(myUser => {
       user = myUser;
       return new Profile({userID: user._id, username: user.username}).save();
     })
@@ -49,16 +49,16 @@ authRouter.get('/api/signin', basicAuth, (req, res, next) => {
   let currentUser = User.findOne({ username: req.auth.username})
     .then(user => {
       if(!user)
-        throw createError(401);
+        return next(createError(401, 'UNAUTHORIZED ACCESS ERROR: invalid credentials'));
       return currentUser = user;
     })
-    .then( user => user.comparePasswordHash(req.auth.password))
-    .then( user => user.generateToken())
-    .then( token => {
-      return Profile.findOne({ userID: currentUser._id })
-        .then( profile => {
+    .then(user => user.comparePasswordHash(req.auth.password))
+    .then(user => user.generateToken())
+    .then(token => {
+      Profile.findOne({ userID: currentUser._id })
+        .then(profile => {
           profile.lastLogin = new Date();
-          profile.save();
+          return profile.save();
         })
         .then(() => {
           res.cookie('Bracket-Busters-Token', token, {maxAge: 604800000});
@@ -76,15 +76,15 @@ authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
   let currentUser = User.findById(req.user._id)
     .then(user => {
       if(!user)
-        throw createError(401);
+        return next(createError(401, 'UNAUTHORIZED ACCESS ERROR: invalid credentials'));
       return currentUser = user;
     })
-    .then( user => user.generateToken())
-    .then( token => {
-      return Profile.findOne({ userID: currentUser._id })
+    .then(user => user.generateToken())
+    .then(token => {
+      Profile.findOne({ userID: currentUser._id })
         .then( profile => {
           profile.lastLogin = new Date();
-          profile.save();
+          return profile.save();
         })
         .then(() => {
           res.cookie('Bracket-Busters-Token', token, {maxAge: 604800000});
