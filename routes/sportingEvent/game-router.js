@@ -96,12 +96,7 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
     return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
 
   let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true})
-    .then( updatedGame => {
-      if(!req.body.winner)
-        res.json(updatedGame);
-
-      return game = updatedGame;
-    })
+    .then( updatedGame => game = updatedGame)
     .then(() => {
       return Team.findByIdAndUpdate(game.winner, { $inc: { wins: 1 }})
         .catch(next);
@@ -111,13 +106,20 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
         .catch(next);
     })
     .then(() => {
-      return UserPick.update({ gameID: req.params.gameID, pick: game.winner }, { $set: { correct: true }}, {multi: true})
+      return UserPick.find({ gameID: req.params.gameID, pick: game.winner }).select('_id userID leagueID')
+        .then(userPicks => {
+          return UserPick.update({ _id: { '$in': userPicks._id } }, { $set: { correct: true }}, {multi: true})
+            .then(() => userPicks)
+            .catch(next);
+        })
         .catch(next);
     })
     .then(userPicks => {
-      return ScoreBoard.update({ userID: { '$in': userPicks.userID }, leagueID: { '$in': userPicks.leagueID }}, { $inc: { score: 10 }}, {multi: true})
+      let userIDs = userPicks.map(userPick => userPick.userID);
+      let leagues = userPicks.map(userPick => userPick.leagueID);
+      return ScoreBoard.update({ userID: { '$in': userIDs }, leagueID: { '$in': leagues }}, { $inc: { score: 10 }}, {multi: true})
         .catch(next);
     })
-    .then(() => res.send('success'))
+    .then(() => res.json(game))
     .catch(next);
 });
