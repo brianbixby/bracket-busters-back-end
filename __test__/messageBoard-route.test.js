@@ -108,7 +108,6 @@ describe('MessageBoard routes', function() {
             Authorization: `Bearer ${this.mock.token}`,
           })
           .end((err, res) => {
-            console.log(res.body);
             if (err) return done(err);
             expect(res.status).toEqual(200);
             expect(res.body.leagueID.toString()).toEqual(this.league._id.toString());

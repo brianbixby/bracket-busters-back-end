@@ -24,20 +24,6 @@ scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, (req, res, next) 
     .catch(next);
 });
 
-// fetch scoreBoard by ID
-// http GET :3000/api/scoreboard/:scoreBoardID 'Authorization:Bearer token'
-scoreBoardRouter.get('/api/scoreboard/:scoreBoardID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/scoreboard/:scoreBoardID');
-
-  ScoreBoard.findById(req.params.scoreBoardID)
-    .then( scoreBoard => {
-      if(!scoreBoard)
-        return next(createError(404, 'NOT FOUND ERROR: scoreBoard not found'));
-      res.json(scoreBoard);
-    })
-    .catch(next);
-});
-
 // fetch all scoreboards
 // http GET :3000/api/scoreboards 'Authorization:Bearer token'
 scoreBoardRouter.get('/api/scoreboards', bearerAuth, (req, res, next) => {

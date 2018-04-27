@@ -52,7 +52,6 @@ userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
     .then(userPicks => {
       if(!userPicks)
         return next(createError(404, 'NOT FOUND ERROR: userPicks not found'));
-      console.log('userpicks: ', userPicks);
       res.json(userPicks);
     })
     .catch(next);

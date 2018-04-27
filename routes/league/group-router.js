@@ -84,20 +84,6 @@ groupRouter.get('/api/group/:groupID', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
-// fetches all groups
-// http GET :3000/api/groups 'Authorization:Bearer token'
-groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
-  debug('GET: /api/groups');
-
-  Group.find()
-    .then(groups => {
-      if(!groups)
-        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
-      res.json(groups);
-    })
-    .catch(next);
-});
-
 // fetches all public groups
 // http GET :3000/api/groups/all/public 'Authorization:Bearer token'
 groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {
@@ -203,11 +189,10 @@ groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
       return Profile.update({ userID: { '$in': group.users }}, { $pull: { groups: req.params.groupID }}, {multi: true})
-        .then(profile => console.log('array of updated ids: ', profile))
         // PRE hook in group model to delete the comments and message board first
         .then(() => group.remove())
         .catch(next);
     })
     .then(() => res.status(204).send())
     .catch(next);
-});
+});  

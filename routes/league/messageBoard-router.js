@@ -50,17 +50,3 @@ messageBoardRouter.get('/api/messageboard/group/:groupID', bearerAuth, (req, res
     })
     .catch(next);
 });
-
-// fetch all messageBoards
-// http GET :3000/api/messageboards 'Authorization:Bearer token'
-messageBoardRouter.get('/api/messageboards', bearerAuth, (req, res, next) => {
-  debug('GET: /api/messageboards');
-
-  MessageBoard.find()
-    .then(messageBoards => {
-      if(!messageBoards)
-        return next(createError(404, 'NOT FOUND ERROR: messageBoards not found'));
-      res.json(messageBoards);
-    })
-    .catch(next);
-});

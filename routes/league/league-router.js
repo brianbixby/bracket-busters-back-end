@@ -79,7 +79,7 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
 });
 
 // fetches all leagues of a logged in user, actually get route
-// http GET :3000/api/groups/user 'Authorization:Bearer token'
+// http GET :3000/api/leagues/user 'Authorization:Bearer token'
 leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/leagues/user');
 
@@ -102,20 +102,6 @@ leagueRouter.get('/api/league/:leagueID', bearerAuth, (req, res, next) => {
       if(!league)
         return next(createError(404, 'NOT FOUND ERROR: league not found'));
       res.json(league);
-    })
-    .catch(next);
-});
-
-// fetches aLL LEAGUES
-// http GET :3000/api/leagues 'Authorization:Bearer token'
-leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
-  debug('GET: /api/leagues');
-
-  League.find()
-    .then(leagues => {
-      if(!leagues)
-        return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
-      res.json(leagues);
     })
     .catch(next);
 });
@@ -179,12 +165,12 @@ leagueRouter.put('/api/league/:leagueID/removeuser', bearerAuth, json(), (req, r
 
   League.findByIdAndUpdate(req.params.leagueID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true })
     .then( league => {
-      return ScoreBoard.findOneAndRemove({ userID: req.user._id, leagueID: req.params.leagueID }).save()
+      return ScoreBoard.findOneAndRemove({ userID: req.user._id, leagueID: req.params.leagueID })
         .then(() => league)
         .catch(next);
     })
     .then( league => {
-      return UserPick.remove({ userID: req.user._id, leagueID: req.params.leagueID }).save()
+      return UserPick.remove({ userID: req.user._id, leagueID: req.params.leagueID })
         .then(() => league)
         .catch(next);
     })
@@ -243,7 +229,7 @@ leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
   debug('DELETE: /api/league/:leagueID');
 
   League.findById(req.params.leagueID)
-    .then( league => {
+    .then(league => {
       if(!league)
         return next(createError(404, 'NOT FOUND ERROR: league not found'));
 
@@ -251,7 +237,6 @@ leagueRouter.delete('/api/league/:leagueID', bearerAuth, (req, res, next) => {
         return next(createError(403, 'FORBIDDEN ERROR: forbidden access'));
 
       return Profile.update({ userID: { '$in': league.users }}, { $pull: { leagues: req.params.leagueID }}, {multi: true})
-        .then(profile => console.log('array of updated ids: ', profile))
         // PRE hook in league model to delete the comments, message board, scoreboard and userpicks first
         .then(() => league.remove())
         .catch(next);

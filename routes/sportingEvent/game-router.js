@@ -34,29 +34,14 @@ gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), 
 });
 
 // fetch all games in that game ID's are not in req.body
-// Game.find( {sportingEventID: req.params.sportingEventID })
 gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, next) => {
   debug('POST:/api/games/:sportingEventID');
 
-  Game.find( { _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
+  Game.find( { sportingEventID: req.params.sportingEventID, _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
     .then(games => {
       if(!games)
         return next(createError(404, 'NOT FOUND ERROR: games not found'));
       res.json(games);
-    })
-    .catch(next);
-});
-
-// fetch a game by ID
-// http GET :3000/api/game/:gameID 'Authorization:Bearer token'
-gameRouter.get('/api/game/:gameID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/game/:gameID');
-
-  Game.findById(req.params.gameID)
-    .then( game => {
-      if(!game)
-        return next(createError(404, 'NOT FOUND ERROR: game not found'));
-      res.json(game);
     })
     .catch(next);
 });
@@ -96,12 +81,7 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
     return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
 
   let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true})
-    .then( updatedGame => {
-      if(!req.body.winner)
-        res.json(updatedGame);
-
-      return game = updatedGame;
-    })
+    .then( updatedGame => game = updatedGame)
     .then(() => {
       return Team.findByIdAndUpdate(game.winner, { $inc: { wins: 1 }})
         .catch(next);
@@ -111,13 +91,20 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
         .catch(next);
     })
     .then(() => {
-      return UserPick.update({ gameID: req.params.gameID, pick: game.winner }, { $set: { correct: true }}, {multi: true})
+      return UserPick.find({ gameID: req.params.gameID, pick: game.winner }).select('_id userID leagueID')
+        .then(userPicks => {
+          return UserPick.update({ _id: { '$in': userPicks._id } }, { $set: { correct: true }}, {multi: true})
+            .then(() => userPicks)
+            .catch(next);
+        })
         .catch(next);
     })
     .then(userPicks => {
-      return ScoreBoard.update({ userID: { '$in': userPicks.userID }, leagueID: { '$in': userPicks.leagueID }}, { $inc: { score: 10 }}, {multi: true})
+      let userIDs = userPicks.map(userPick => userPick.userID);
+      let leagues = userPicks.map(userPick => userPick.leagueID);
+      return ScoreBoard.update({ userID: { '$in': userIDs }, leagueID: { '$in': leagues }}, { $inc: { score: 10 }}, {multi: true})
         .catch(next);
     })
-    .then(() => res.send('success'))
+    .then(() => res.json(game))
     .catch(next);
 });
