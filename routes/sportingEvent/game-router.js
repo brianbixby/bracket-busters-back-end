@@ -34,29 +34,14 @@ gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), 
 });
 
 // fetch all games in that game ID's are not in req.body
-// Game.find( {sportingEventID: req.params.sportingEventID })
 gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, next) => {
   debug('POST:/api/games/:sportingEventID');
 
-  Game.find( { _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
+  Game.find( { sportingEventID: req.params.sportingEventID, _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName wins losses'})
     .then(games => {
       if(!games)
         return next(createError(404, 'NOT FOUND ERROR: games not found'));
       res.json(games);
-    })
-    .catch(next);
-});
-
-// fetch a game by ID
-// http GET :3000/api/game/:gameID 'Authorization:Bearer token'
-gameRouter.get('/api/game/:gameID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/game/:gameID');
-
-  Game.findById(req.params.gameID)
-    .then( game => {
-      if(!game)
-        return next(createError(404, 'NOT FOUND ERROR: game not found'));
-      res.json(game);
     })
     .catch(next);
 });

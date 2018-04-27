@@ -84,20 +84,6 @@ groupRouter.get('/api/group/:groupID', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
-// fetches all groups
-// http GET :3000/api/groups 'Authorization:Bearer token'
-groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
-  debug('GET: /api/groups');
-
-  Group.find()
-    .then(groups => {
-      if(!groups)
-        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
-      res.json(groups);
-    })
-    .catch(next);
-});
-
 // fetches all public groups
 // http GET :3000/api/groups/all/public 'Authorization:Bearer token'
 groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {

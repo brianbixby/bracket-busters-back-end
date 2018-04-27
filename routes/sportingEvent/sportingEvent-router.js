@@ -26,31 +26,3 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
     .then( sportingEvent => res.json(sportingEvent))
     .catch(next);
 });
-
-// fetch a sporting event by ID
-// http GET :3000/api/sportingevent/:sportingEventID 'Authorization:Bearer TOKEN'
-sportingEventRouter.get('/api/sportingevent/:sportingEventID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/sportingEvent/:sportingEventID');
-
-  SportingEvent.findById(req.params.sportingEventID)
-    .then( sportingEvent => {
-      if(!sportingEvent)
-        return next(createError(404, 'NOT FOUND ERROR: sportingEvent not found'));
-      res.json(sportingEvent);
-    })
-    .catch(next);
-});
-
-// fetch all sporting events
-// http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
-sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
-  debug('GET: /api/sportingevents');
-
-  SportingEvent.find()
-    .then(sportingEvents => {
-      if(!sportingEvents)
-        return next(createError(404, 'NOT FOUND ERROR: sportingEvents not found'));
-      res.json(sportingEvents);
-    })
-    .catch(next);
-});

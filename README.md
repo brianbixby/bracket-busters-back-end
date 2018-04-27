@@ -380,22 +380,190 @@ MIT. Use it up!
 MONGODB_URI='mongodb://localhost/sportsapptest'
 MONGODB_URI='mongodb://heroku_5s3dhwdr:vm0d8l4q47rb9psbn1o247o2in@ds263138.mlab.com:63138/heroku_5s3dhwdr'
 
+## Deprecated Routes
 
-<!-- to do promisify server file use sluggram backend
+// fetches aLL LEAGUES
+// http GET :3000/api/leagues 'Authorization:Bearer token'
+```
+leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
+  debug('GET: /api/leagues');
 
-profile is username change check to make sure it's unique
-game router add the sportingevent id to the find Game.find( {sportingEventID: req.params.sportingEventID })
+  League.find()
+    .then(leagues => {
+      if(!leagues)
+        return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
+      res.json(leagues);
+    })
+    .catch(next);
+});
+```
 
-game async on put route
+// fetches all groups
+// http GET :3000/api/groups 'Authorization:Bearer token'
+```
+groupRouter.get('/api/groups', bearerAuth, (req, res, next) => {
+  debug('GET: /api/groups');
 
-group groupRouter.delete('/api/group/:groupId'
-  map instead of forEach
+  Group.find()
+    .then(groups => {
+      if(!groups)
+        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
+      res.json(groups);
+    })
+    .catch(next);
+});
+```
 
-league, models, tests
+// fetch all messageBoards
+// http GET :3000/api/messageboards 'Authorization:Bearer token'
+```
+messageBoardRouter.get('/api/messageboards', bearerAuth, (req, res, next) => {
+  debug('GET: /api/messageboards');
 
-profile model birthdate
+  MessageBoard.find()
+    .then(messageBoards => {
+      if(!messageBoards)
+        return next(createError(404, 'NOT FOUND ERROR: messageBoards not found'));
+      res.json(messageBoards);
+    })
+    .catch(next);
+});
+```
 
-user model rewrite with lexical arrows and eliminate the calls
-league model -->
+// fetch scoreBoard by ID
+// http GET :3000/api/scoreboard/:scoreBoardID 'Authorization:Bearer token'
+```
+scoreBoardRouter.get('/api/scoreboard/:scoreBoardID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/scoreboard/:scoreBoardID');
 
-routes not working are group delete and have yet to test 2 game routes and league routes
+  ScoreBoard.findById(req.params.scoreBoardID)
+    .then( scoreBoard => {
+      if(!scoreBoard)
+        return next(createError(404, 'NOT FOUND ERROR: scoreBoard not found'));
+      res.json(scoreBoard);
+    })
+    .catch(next);
+});
+```
+
+// fetch a game by ID
+// http GET :3000/api/game/:gameID 'Authorization:Bearer token'
+```
+gameRouter.get('/api/game/:gameID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/game/:gameID');
+
+  Game.findById(req.params.gameID)
+    .then( game => {
+      if(!game)
+        return next(createError(404, 'NOT FOUND ERROR: game not found'));
+      res.json(game);
+    })
+    .catch(next);
+});
+```
+
+// fetch a sporting event by ID
+// http GET :3000/api/sportingevent/:sportingEventID 'Authorization:Bearer TOKEN'
+```
+sportingEventRouter.get('/api/sportingevent/:sportingEventID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/sportingEvent/:sportingEventID');
+
+  SportingEvent.findById(req.params.sportingEventID)
+    .then( sportingEvent => {
+      if(!sportingEvent)
+        return next(createError(404, 'NOT FOUND ERROR: sportingEvent not found'));
+      res.json(sportingEvent);
+    })
+    .catch(next);
+});
+```
+
+// fetch all sporting events
+// http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
+```
+sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
+  debug('GET: /api/sportingevents');
+
+  SportingEvent.find()
+    .then(sportingEvents => {
+      if(!sportingEvents)
+        return next(createError(404, 'NOT FOUND ERROR: sportingEvents not found'));
+      res.json(sportingEvents);
+    })
+    .catch(next);
+});
+```
+
+// fetch a a team by ID
+// http GET :3000/api/team/:teamID 'Authorization:Bearer TOKEN'
+```
+teamRouter.get('/api/team/:teamID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/team/:teamID');
+
+  Team.findById(req.params.teamID)
+    .then( team => {
+      if(!team)
+        return next(createError(404, 'NOT FOUND ERROR: team not found'));
+      res.json(team);
+    })
+    .catch(next);
+});
+```
+
+// fetch all teams
+// http GET :3000/api/team 'Authorization:Bearer TOKEN'
+```
+teamRouter.get('/api/team', bearerAuth, (req, res, next) => {
+  debug('GET: /api/team');
+
+  Team.find()
+    .then(teams => {
+      if(!teams)
+        return next(createError(404, 'NOT FOUND ERROR: teams not found'));
+      res.json(teams);
+    })
+    .catch(next);
+});
+```
+
+// update a team by ID
+// http PUT :3000/api/team/:teamID 'Authorization:Bearer TOKEN' tags='new tag'
+```
+teamRouter.put('/api/team/:teamID', bearerAuth, json(), (req, res, next) => {
+  debug('PUT: /api/team:teamID');
+
+  let teamProperties = req.body.teamName 
+  || req.body.sportingEventID 
+  || req.body.createdOn 
+  || req.body.image
+  || req.body.seed 
+  || req.body.wins 
+  || req.body.losses 
+  || req.body.pretournamentRecord
+  || req.body.tags;
+
+  if (!teamProperties)
+    return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
+    
+  Team.findByIdAndUpdate(req.params.teamID, req.body, {new: true, runValidators: true})
+    .then( team => res.json(team))
+    .catch(next);
+});
+```
+
+// get a user's profile by profile ID
+// http GET :3000/api/profile/:profileID 'Authorization:Bearer TOKEN'
+```
+profileRouter.get('/api/profile/:profileID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/profile/:profileID');
+
+  Profile.findById(req.params.profileID)
+    .then(profile => {
+      if(!profile)
+        return next(createError(404, 'NOT FOUND ERROR: profile not found'));
+      // throw createError(401);
+      res.json(profile);
+    })
+    .catch(next);
+});
+```

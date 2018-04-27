@@ -106,20 +106,6 @@ leagueRouter.get('/api/league/:leagueID', bearerAuth, (req, res, next) => {
     .catch(next);
 });
 
-// fetches aLL LEAGUES
-// http GET :3000/api/leagues 'Authorization:Bearer token'
-leagueRouter.get('/api/leagues', bearerAuth, (req, res, next) => {
-  debug('GET: /api/leagues');
-
-  League.find()
-    .then(leagues => {
-      if(!leagues)
-        return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
-      res.json(leagues);
-    })
-    .catch(next);
-});
-
 // fetches all public leagues
 // http GET :3000/api/leagues/allpublic 'Authorization:Bearer token'
 leagueRouter.get('/api/leagues/allpublic', bearerAuth, (req, res, next) => {
