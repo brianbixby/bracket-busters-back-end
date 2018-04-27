@@ -48,7 +48,7 @@ groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, ne
   debug('PUT: /api/group/private/adduser');
 
   Group.findOneAndUpdate({ groupName: req.body.groupName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
-    .then( group => {
+    .then(group => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);
@@ -118,7 +118,7 @@ groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, ne
   debug('PUT: /api/group/:groupID/adduser');
 
   Group.findByIdAndUpdate(req.params.groupID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
-    .then( group => {
+    .then(group => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);
@@ -132,7 +132,7 @@ groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, json(), (req, res,
   debug('PUT: /api/group/:groupID/removeuser');
 
   Group.findByIdAndUpdate(req.params.groupID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true })
-    .then( group => {
+    .then(group => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);

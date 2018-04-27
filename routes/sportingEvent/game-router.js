@@ -23,7 +23,7 @@ gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), 
       : !dateTime ? 'expected an dateTime'
         : null;
 
-  if (message)
+  if(message)
     return next(createError(400, `BAD REQUEST ERROR: ${message}`));
 
   req.body.sportingEventID = req.params.sportingeventID;
@@ -81,7 +81,7 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
     return next(createError(400, 'BAD REQUEST ERROR: expected a request body'));
 
   let game = Game.findByIdAndUpdate(req.params.gameID, req.body, {new: true, runValidators: true})
-    .then( updatedGame => game = updatedGame)
+    .then(updatedGame => game = updatedGame)
     .then(() => {
       return Team.findByIdAndUpdate(game.winner, { $inc: { wins: 1 }})
         .catch(next);
@@ -93,7 +93,10 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
     .then(() => {
       return UserPick.find({ gameID: req.params.gameID, pick: game.winner }).select('_id userID leagueID')
         .then(userPicks => {
-          return UserPick.update({ _id: { '$in': userPicks._id } }, { $set: { correct: true }}, {multi: true})
+          if(!userPicks)
+            return next(createError(404, 'NOT FOUND ERROR: user picks not found'));
+
+          UserPick.update({ _id: { '$in': userPicks._id } }, { $set: { correct: true }}, {multi: true})
             .then(() => userPicks)
             .catch(next);
         })

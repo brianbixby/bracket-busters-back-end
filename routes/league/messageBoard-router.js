@@ -15,7 +15,7 @@ messageBoardRouter.get('/api/messageboard/:messageBoardID', bearerAuth, (req, re
   debug('GET: /api/messageboard/:messageBoardID');
 
   MessageBoard.findById(req.params.messageBoardID)
-    .then( messageBoard => {
+    .then(messageBoard => {
       if(!messageBoard)
         return next(createError(404, 'NOT FOUND ERROR: messageBoard not found'));
       res.json(messageBoard);
@@ -29,7 +29,7 @@ messageBoardRouter.get('/api/messageboard/league/:leagueID', bearerAuth, (req, r
   debug('GET: /api/messageboard/league/:leagueID');
 
   MessageBoard.find({ leagueID: req.params.leagueID })
-    .then( messageBoard => {
+    .then(messageBoard => {
       if(!messageBoard)
         return next(createError(404, 'NOT FOUND ERROR: messageBoard not found'));
       res.json(messageBoard);
@@ -43,7 +43,7 @@ messageBoardRouter.get('/api/messageboard/group/:groupID', bearerAuth, (req, res
   debug('GET: /api/messageboard/group/:groupID');
 
   MessageBoard.find({ groupID: req.params.groupID })
-    .then( messageBoard => {
+    .then(messageBoard => {
       if(!messageBoard)
         return next(createError(404, 'NOT FOUND ERROR: messageBoard not found'));
       res.json(messageBoard);
