@@ -96,7 +96,7 @@ gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
           if(!userPicks)
             return next(createError(404, 'NOT FOUND ERROR: user picks not found'));
 
-          UserPick.update({ _id: { '$in': userPicks._id } }, { $set: { correct: true }}, {multi: true})
+          return UserPick.update({ _id: { '$in': userPicks._id } }, { $set: { correct: true }}, {multi: true})
             .then(() => userPicks)
             .catch(next);
         })
