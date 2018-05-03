@@ -16,7 +16,7 @@ If you are not participating in a league or would like to communicate with those
 - MongoDB
 - travis
 - heroku
-- github
+- GitHub
 - npm
 - node packages
   - Production
@@ -50,9 +50,9 @@ https://www.lucidchart.com/documents/view/ccfd14a4-7127-4097-8bf9-ca0d567cc323/0
 
 
 ## How to use?
-Clone this repo, cd into the root of the project, run `npm i` from your command line to install all of our dependencies. Please make sure that you have mongodb and httpie installed on your machine. You can brew install them both if you do not already have them with `brew install httpie mongodb`. Please refernce the installation instructions for MongoDB `https://docs.mongodb.com/manual/administration/install-community/`, there are typically 1 or 2 quick things you need to do after you Brew install it. 
+Clone this repo, cd into the root of the project, run `npm i` from your command line to install all of our dependencies. Please make sure that you have MongoDB and httpie installed on your machine. You can brew install them both if you do not already have them with `brew install httpie MongoDB`. Please reference the installation instructions for MongoDB `https://docs.mongodb.com/manual/administration/install-community/`, there are typically 1 or 2 quick things you need to do after you Brew install it. 
 
-Run `npm run start` from terminal to start the server. Open a new tab in terminal and run `mongod` to start the Mongo process. Open another terminal tab and run `mongo` to open a Mongo shell (for viewing the contents of your local database). Lastly, open up a final terminal tab; this is where you will be making all of your server requests. Instructions and examples are below.
+Run `npm run start` from the terminal to start the server. Open a new tab in the terminal and run `mongod` to start the Mongo process. Open another terminal tab and run `mongo` to open a Mongo shell (for viewing the contents of your local database). Lastly, open up a final terminal tab; this is where you will be making all of your server requests. Instructions and examples are below.
 
 ## Routes
 
@@ -71,10 +71,10 @@ http POST :3000/api/signup username=<username> email=<email> password=<password>
 ```
 Throws an error if any of the requested properties that are not created for you are missing.
 
-The User model will return a json web token if there are no errors, and create a profile model for the newly instantiated user to add more detailed information to.
+The User model will return a JSON web token if there are no errors, and create a profile model for the newly instantiated user to add more detailed information too.
 
 ### Profile Routes
-#### GET: `/api/profile/<profile id>`
+#### GET: `/API/profile/<profile id>`
 Retrieve your user profile and update your information for other users to see.
 
 ```
@@ -83,7 +83,7 @@ http -a <username>:<password> :3000/api/signin
 ```
 Throws an error if any of the requested properties that are not created for you are missing.
 
-The User model will return a json web token if there are no errors.
+The User model will return a JSON web token if there are no errors.
 #### PUT: `/api/profile/<profile id>`
 This will allow you to make changes to a specific profile.
 
@@ -363,7 +363,7 @@ http :3000/api/comment/commentId 'Authorization:Bearer <token>'
 
 ## Tests
 
-Tests are ran by using the jest testing suite. To run tests, first you must download and copy this repo and run `npm i` in the root directory to install all application dependancies. Run `npm run test` in the root directory of the application in your terminal to check tests.
+Tests are run by using the jest testing suite. To run tests, first, you must download and copy this repo and run `npm i` in the root directory to install all application dependancies. Run `npm run test` in the root directory of the application in your terminal to check tests.
 
 ## Contribute
 
