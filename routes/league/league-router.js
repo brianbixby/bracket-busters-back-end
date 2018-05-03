@@ -40,9 +40,9 @@ leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json
         .catch(next);
     })
     .then(() => {
-      let scoreboard = { leagueID: league._id, userID: req.user._id };
-      if (!scoreboard.leagueID || !scoreboard.userID )
-        return next(createError(400, 'BAD REQUEST ERROR: expected a scoreboard leagueID and userID'));
+      let scoreboard = { leagueID: league._id, userID: req.user._id, sportingEventID: league.sportingEventID };
+      if (!scoreboard.leagueID || !scoreboard.userID || !scoreboard.sportingEventID)
+        return next(createError(400, 'BAD REQUEST ERROR: expected a scoreboard leagueID, sportingEventID and userID'));
 
       return new ScoreBoard(scoreboard).save()
         .catch(next);
@@ -62,9 +62,9 @@ leagueRouter.post('/api/league/private/adduser', bearerAuth, json(), (req, res, 
 
   League.findOneAndUpdate({ leagueName: req.body.leagueName, password: req.body.password }, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
     .then(league => {
-      let scoreboard = { leagueID: league._id, userID: req.user._id };
-      if (!scoreboard.leagueID || !scoreboard.userID )
-        return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
+      let scoreboard = { leagueID: league._id, userID: req.user._id, sportingEventID: league.sportingEventID };
+      if (!scoreboard.leagueID || !scoreboard.userID || !scoreboard.sportingEventID)
+        return next(createError(400, 'BAD REQUEST ERROR: expected a scoreboard leagueID, sportingEventID and userID'));
 
       new ScoreBoard(scoreboard).save()
         .then(() => league)
@@ -84,6 +84,20 @@ leagueRouter.post('/api/leagues/user', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/leagues/user');
 
   League.find( { _id: { $in: req.body} } )
+    .then(leagues => {
+      if(!leagues)
+        return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
+      res.json(leagues);
+    })
+    .catch(next);
+});
+
+// fetches all public leagues logged in user is not in
+// http GET :3000/api/leagues/user 'Authorization:Bearer token'
+leagueRouter.post('/api/leagues/top/:sportingEventID', bearerAuth, json(), (req, res, next) => {
+  debug('POST: /api/leagues/top');
+
+  League.find( { sportingEventID: req.params.sportingEventID, privacy: 'public', _id: { $nin: req.body[0] }}).limit(10).sort({ size: -1 })
     .then(leagues => {
       if(!leagues)
         return next(createError(404, 'NOT FOUND ERROR: leagues not found'));
@@ -141,9 +155,9 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
 
   League.findByIdAndUpdate(req.params.leagueID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
     .then(league => {
-      let scoreboard = { leagueID: league._id, userID: req.user._id };
-      if (!scoreboard.leagueID || !scoreboard.userID )
-        return next(createError(400, 'BAD REQUEST ERROR: expected a request body leagueID and userID'));
+      let scoreboard = { leagueID: league._id, userID: req.user._id, sportingEventID: league.sportingEventID };
+      if (!scoreboard.leagueID || !scoreboard.userID || !scoreboard.sportingEventID)
+        return next(createError(400, 'BAD REQUEST ERROR: expected a scoreboard leagueID, sportingEventID and userID'));
 
       new ScoreBoard(scoreboard).save()
         .then(() => league)

@@ -478,22 +478,6 @@ sportingEventRouter.get('/api/sportingevent/:sportingEventID', bearerAuth, (req,
 });
 ```
 
-// fetch all sporting events
-// http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
-```
-sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
-  debug('GET: /api/sportingevents');
-
-  SportingEvent.find()
-    .then(sportingEvents => {
-      if(!sportingEvents)
-        return next(createError(404, 'NOT FOUND ERROR: sportingEvents not found'));
-      res.json(sportingEvents);
-    })
-    .catch(next);
-});
-```
-
 // fetch a a team by ID
 // http GET :3000/api/team/:teamID 'Authorization:Bearer TOKEN'
 ```

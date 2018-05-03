@@ -23,7 +23,7 @@ const leagueSchema = mongoose.Schema({
   size: { type: Number, default: 1 },
   paidUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
   tags: [ String ],
-  motto: String,
+  motto: { type: String, required: true },
   image: String,
 });
 
