@@ -26,3 +26,17 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
     .then(sportingEvent => res.json(sportingEvent))
     .catch(next);
 });
+
+// fetch all sporting events
+// http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
+sportingEventRouter.get('/api/sportingevents', (req, res, next) => {
+  debug('GET: /api/sportingevents');
+
+  SportingEvent.find()
+    .then(sportingEvents => {
+      if(!sportingEvents)
+        return next(createError(404, 'NOT FOUND ERROR: sportingEvents not found'));
+      res.json(sportingEvents);
+    })
+    .catch(next);
+});

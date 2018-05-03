@@ -37,3 +37,17 @@ scoreBoardRouter.get('/api/scoreboards', bearerAuth, (req, res, next) => {
     })
     .catch(next);
 });
+
+// fetch top scores by sportingEvent
+// http GET :3000/api/scoreboards/sportingevent/:sportingeventID 'Authorization:Bearer token'
+scoreBoardRouter.get('/api/scoreboards/sportingevent/:sportingeventID', bearerAuth, (req, res, next) => {
+  debug('GET: /api/scoreboards/sportingevent/:sportingeventID');
+
+  ScoreBoard.find({ sportingEventID: req.params.sportingEventID }).limit(10).sort({ score: -1 })
+    .then(scoreBoards => {
+      if(!scoreBoards)
+        return next(createError(404, 'NOT FOUND ERROR: scoreBoards not found'));
+      res.json(scoreBoards);
+    })
+    .catch(next);
+});

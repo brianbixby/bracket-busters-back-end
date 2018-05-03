@@ -8,7 +8,7 @@ const groupSchema = mongoose.Schema({
   groupName: { type: String, required: true },
   privacy: { type: String, required: true },
   size: { type: Number, default: 1 },
-  motto: String,
+  motto: { type: String, required: true },
   createdOn: { type: Date, default: Date.now },
   image: String ,
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },

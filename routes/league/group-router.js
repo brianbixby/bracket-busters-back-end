@@ -98,6 +98,20 @@ groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) =
     .catch(next);
 });
 
+// fetches all public groups logged in user is not in
+// http GET :3000/api/groups/user 'Authorization:Bearer token'
+groupRouter.post('/api/groups/top', bearerAuth, json(), (req, res, next) => {
+  debug('POST: /api/groups/top');
+
+  Group.find( { privacy: 'public', _id: { $nin: req.body[0] }}).limit(10).sort({ size: -1 })
+    .then(groups => {
+      if(!groups)
+        return next(createError(404, 'NOT FOUND ERROR: groups not found'));
+      res.json(groups);
+    })
+    .catch(next);
+});
+
 // group name availability check
 // http GET :3000/api/groupNames/:groupName
 groupRouter.get('/api/groupNames/:groupName', (req, res, next) => {
