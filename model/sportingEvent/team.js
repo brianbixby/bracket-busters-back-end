@@ -4,13 +4,17 @@ const mongoose = require('mongoose');
 
 const teamSchema = mongoose.Schema({
   teamName: { type: String, required: true, unique: true},
+  teamCity: { type: String, required: true },
+  image: { type: String, required: true },
+  color: { type: String, required: true },
+  pretournamentRecord:{ type: String, required: true },
   sportingEventID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'sportingEvent' },
-  createdOn: { type: Date, default: Date.now },
-  image: String,
-  seed: Number,
   wins: {type: Number, default: 0 },
   losses: {type: Number, default: 0 },
-  pretournamentRecord: String,
+  seed: Number,
+  createdOn: { type: Date, default: Date.now },
+  starPlayer: String,
+  starPlayerImage: String,
   tags: [ String ],
 });
 
