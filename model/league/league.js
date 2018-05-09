@@ -12,8 +12,6 @@ const leagueSchema = mongoose.Schema({
   sportingEventID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'sportingEvent' },
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },
   ownerName: {type: String, required: true },
-  scoring: { type: String, required: true},
-  poolSize: { type: Number, required: true },
   privacy: { type: String, default: 'public', required: true },
   password: String,
   winner: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
@@ -23,6 +21,8 @@ const leagueSchema = mongoose.Schema({
   size: { type: Number, default: 1 },
   paidUsers: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
   tags: [ String ],
+  scoring: String,
+  poolSize: Number,
   motto: { type: String, required: true },
   image: String,
 });
