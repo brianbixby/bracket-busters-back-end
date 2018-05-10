@@ -34,7 +34,7 @@ userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, 
 userPickRouter.get('/api/userpick/:userPickID', bearerAuth, (req, res, next) => {
   debug('GET: /api/userpick/:userPickID');
 
-  UserPick.findById(req.params.userPickID).populate({path: 'gameID', select: 'homeTeam awayTeam', populate: {path: 'awayTeam homeTeam', select: 'teamName wins losses _id image'}})
+  UserPick.findById(req.params.userPickID).populate({path: 'gameID', select: 'homeTeam awayTeam', populate: {path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses starPlayer starPlayerImage'}})
     .then(userPick => {
       if(!userPick)
         return next(createError(404, 'NOT FOUND ERROR: userPick not found'));
@@ -48,7 +48,7 @@ userPickRouter.get('/api/userpick/:userPickID', bearerAuth, (req, res, next) => 
 userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/userpicks');
 
-  UserPick.find({ leagueID: req.params.leagueID, userID: req.user._id }).populate({path: 'gameID', select: 'homeTeam awayTeam', populate: {path: 'awayTeam homeTeam', select: 'teamName wins losses _id image'}})
+  UserPick.find({ leagueID: req.params.leagueID, userID: req.user._id }).populate({path: 'gameID', select: 'homeTeam awayTeam', populate: {path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses starPlayer starPlayerImage'}})
     .then(userPicks => {
       if(!userPicks)
         return next(createError(404, 'NOT FOUND ERROR: userPicks not found'));

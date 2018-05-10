@@ -18,12 +18,10 @@ const leagueRouter = module.exports = Router();
 leagueRouter.post('/api/sportingevent/:sportingeventID/league', bearerAuth, json(), (req, res, next) => {
   debug(`POST: /api/sportingevent/:sportingeventID/league`);
 
-  const { leagueName, scoring, poolSize, privacy } = req.body;
+  const { leagueName, privacy } = req.body;
   const message = !leagueName ? 'expected a leagueName'
-    : !scoring ? 'expected a scoring'
-      : !poolSize ? 'expected a poolSize'
-        : !privacy ? 'expected privacy'
-          : null;
+    : !privacy ? 'expected privacy'
+      : null;
   
   if (message)
     return next(createError(400, `BAD REQUEST ERROR: ${message}`));
@@ -209,8 +207,6 @@ leagueRouter.put('/api/league/:leagueID', bearerAuth, json(), (req, res, next) =
    || req.body.sportingEventID 
    || req.body.owner
    || req.body.ownerName 
-   || req.body.scoring 
-   || req.body.poolSize 
    || req.body.privacy
    || req.body.password 
    || req.body.password
