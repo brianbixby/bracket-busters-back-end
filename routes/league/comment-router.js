@@ -31,7 +31,7 @@ commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, json
 commentRouter.post('/api/comments/messageboard', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/comments/messageboard');
 
-  Comment.find( { _id: { $in: req.body} } )
+  Comment.find( { _id: { $in: req.body} } ).sort({ createdOn: -1 })
     .then(comments => {
       if(!comments)
         return next(createError(404, 'NOT FOUND ERROR: comments not found'));
