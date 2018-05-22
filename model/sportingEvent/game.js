@@ -10,8 +10,8 @@ const gameSchema = mongoose.Schema ({
   homeScore: { type: Number, default: 0 },
   awayScore: { type: Number, default: 0 },
   status: { type: String, default: 'scheduled' },
-  winner: { type: mongoose.Schema.Types.ObjectId, ref: 'team' },
-  loser: { type: mongoose.Schema.Types.ObjectId, ref: 'team' },
+  winner: { type: mongoose.Schema.Types.ObjectId, ref: 'team', default: null },
+  loser: { type: mongoose.Schema.Types.ObjectId, ref: 'team', default: null },
   sportingEventID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'sportingEvent' },
   tags: [ String ],
 });
