@@ -37,7 +37,7 @@ gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), 
 gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, next) => {
   debug('POST:/api/games/:sportingEventID');
 
-  Game.find( { sportingEventID: req.params.sportingEventID, _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses starPlayer starPlayerImage'})
+  Game.find( { sportingEventID: req.params.sportingEventID, _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses starPlayer starPlayerImage'}).sort({ dateTime: 1 })
     .then(games => {
       if(!games)
         return next(createError(404, 'NOT FOUND ERROR: games not found'));
