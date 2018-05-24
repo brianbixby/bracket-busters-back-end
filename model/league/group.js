@@ -15,6 +15,7 @@ const groupSchema = mongoose.Schema({
   ownerName: {type: String, required: true },
   password: String,
   users: [{type: mongoose.Schema.Types.ObjectId, ref: 'user'}],
+  userNames: [{type: String}],
   tags: [ String ], 
 });
 
