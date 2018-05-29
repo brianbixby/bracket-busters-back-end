@@ -80,7 +80,6 @@ groupRouter.get('/api/group/:groupID', bearerAuth, (req, res, next) => {
     .then(group => {
       if(!group)
         return next(createError(404, 'NOT FOUND ERROR: group not found'));
-      console.log('group: ', group);
       res.json(group);
     })
     .catch(next);
@@ -135,7 +134,6 @@ groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, ne
 
   Group.findByIdAndUpdate(req.params.groupID, { $push: { users: req.user._id, userNames: req.user.username }, $inc: { size: 1 }}, { new: true }) 
     .then(group => {
-      console.log('group: ', group);
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
         .then(() => res.json(group))
         .catch(next);

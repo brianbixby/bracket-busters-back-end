@@ -14,7 +14,7 @@ const scoreBoardRouter = module.exports = Router();
 scoreBoardRouter.get('/api/scoreboards/:leagueID', bearerAuth, (req, res, next) => {
   debug('GET: /api/scoreboards/:leagueID');
   
-  ScoreBoard.find({ leagueID: req.params.leagueID }).populate({path: 'userID', select: 'username'}) 
+  ScoreBoard.find({ leagueID: req.params.leagueID }).sort({ score: -1 }).populate({path: 'userID', select: 'username'}) 
     .sort('score')
     .then(scoreBoards =>  {
       if(!scoreBoards)

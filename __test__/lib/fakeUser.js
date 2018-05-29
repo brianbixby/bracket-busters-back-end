@@ -5,7 +5,7 @@ const User = require('../../model/user/user.js');
 
 module.exports = exports = {};
 
-exports.create = function() {
+exports.create = () => {
   let mock = {};
   mock.request = {
     username: faker.internet.userName(),
@@ -16,13 +16,13 @@ exports.create = function() {
 
   let user = new User(mock.request);
   return user.generatePasswordHash(mock.request.password)
-    .then( user => user.save())
-    .then( user => {
+    .then(user => user.save())
+    .then(user => {
       mock.user = user;
       return user;
     })
-    .then( user => user.generateToken())
-    .then( token => {
+    .then(user => user.generateToken())
+    .then(token => {
       mock.token = token;
       return mock;    
     })
@@ -30,6 +30,4 @@ exports.create = function() {
 };    
  
       
-exports.remove = function() {
-  return User.remove({});
-};
+exports.remove = () =>  User.remove({});

@@ -26,13 +26,11 @@ profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
 // http GET :3000/api/profiles/group 'Authorization:Bearer TOKEN'
 profileRouter.post('/api/profiles/group', bearerAuth, json(), (req, res, next) => {
   debug('POST: /api/profiles/group');
-  console.log('profiles route hit: ', req.body);
 
   Profile.find({ userID: { $in: req.body }}).select('username image')
     .then(profiles => {
       if(!profiles)
         return next(createError(404, 'NOT FOUND ERROR: profiles not found'));
-      console.log('profiles: ', profiles);
       res.json(profiles);
     })
     .catch(next);
