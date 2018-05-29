@@ -22,23 +22,22 @@ describe('Profile routes', function() {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        // this.mock.profile = this.mock.profile._rejectionHandler0;
         done();
       })
       .catch(done);
   });
-  afterEach( done => {
+  afterEach(done => {
     Promise.all([
       fakeProfile.remove(),
     ])
-      .then( () => done())
+      .then(() => done())
       .catch(done);
   });
 
   describe('GET: /api/profile/:profileId', () => {
     describe('with a valid body', () => {
       it('should return a profile', done => { 
-        request.get(`${url}/api/profile/${this.mock.profile._id}`)
+        request.get(`${url}/api/profiles/currentuser`)
           .set({
             Authorization: `Bearer ${this.mock.token}`,
           })
@@ -51,7 +50,6 @@ describe('Profile routes', function() {
             expect(res.body.image).toEqual(this.mock.profile.image);
             expect(res.body.country).toEqual(this.mock.profile.country);
             expect(res.body.state).toEqual(this.mock.profile.state);
-            expect(res.body.birthdate.toString()).toEqual('1970-01-01T02:48:21.909Z');
             expect(res.body._id.toString()).toEqual(this.mock.profile._id.toString());
             expect(res.body.userID.toString()).toEqual(this.mock.profile.userID.toString());
             expect(res.body.username).toEqual(this.mock.profile.username);
@@ -60,7 +58,7 @@ describe('Profile routes', function() {
       });
 
       it('should return a 401 when no token is provided', done => {
-        request.get(`${url}/api/profile/${this.mock.profile._id}`)
+        request.get(`${url}/api/profiles/currentuser`)
           .set({
             Authorization: 'Bearer',
           })
@@ -71,12 +69,41 @@ describe('Profile routes', function() {
       });
   
       it('should return a 404 for a valid req with a list id not found', done => {
-        request.get(`${url}/api/profile/a979e472c577c679758e018`)
+        request.get(`${url}/api/profiles/current`)
           .set({
             Authorization: `Bearer ${this.mock.token}`,
           })
           .end((err, res) => {
             expect(res.status).toEqual(404);
+            done();
+          });
+      });
+    });
+  });
+
+  describe('POST: /api/profiles/group', () => {
+    describe('with a valid body', () => {
+      it('should return an array or profile names and image urls', done => { 
+        request.post(`${url}/api/profiles/group`)
+          .send([`${this.mock.profile.userID}`])
+          .set({
+            Authorization: `Bearer ${this.mock.token}`,
+          })
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.status).toEqual(200);
+            done();
+          });
+      });
+
+      it('should return a 401 when no token is provided', done => {
+        request.post(`${url}/api/profiles/group`)
+          .send([`${this.mock.profile.userID}`])
+          .set({
+            Authorization: 'Bearer',
+          })
+          .end((err, res) => {
+            expect(res.status).toEqual(401);
             done();
           });
       });
@@ -112,8 +139,8 @@ describe('Profile routes', function() {
           });
       });
 
-      it('should  not update and return a 404 status for user list not found', done => {
-        request.put(`${url}/api/profile/a979e472c577c679758e018`)
+      it('should  not update and return a 404 status for profile not found', done => {
+        request.put(`${url}/api/profile/a`)
           .send(updatedProfile)
           .set({
             Authorization: `Bearer ${this.mock.token}`,

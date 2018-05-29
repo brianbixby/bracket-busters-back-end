@@ -24,8 +24,8 @@ describe('Auth routes', function() {
   });
   afterEach(fakeUser.remove);
 
-  describe('POST: /api/signup', function() {
-    describe('with a valid body', function() {
+  describe('POST: /api/signup', () => {
+    describe('with a valid body', () => {
       it('should return a token', done => { 
         request.post(`${url}/api/signup`)
           .send(testUser)
@@ -49,21 +49,34 @@ describe('Auth routes', function() {
 
   describe('GET: /api/signin', function() {
     describe('with a valid body', function() {
-      beforeEach(() => {
+      beforeEach( done => {
         return fakeUser.create()
-          .then( mock => this.mock = mock);
-      }); 
+          .then( mock => {
+            this.mock = mock;
+            done();
+          })
+          .catch(done);
+      });
+      afterEach(done => {
+        Promise.all([
+          fakeUser.remove(),
+        ])
+          .then(() => done())
+          .catch(done);
+      });
 
-      // it('return a token', done => {
-      //   request.get(`${url}/api/signin`)
-      //     .auth(this.mock.user.username, this.mock.request.password)
-      //     .end((err, res) => {
-      //       if(err) return done(err);
-      //       expect(res.status).toEqual(200);
-      //       expect(typeof res.text).toEqual('string');
-      //       done();
-      //     });
-      // });
+      it('return a token', done => {
+        request.get(`${url}/api/signin`)
+          .auth(this.mock.user.username, this.mock.user.password)
+          .end((err, res) => {
+            if(err) return done(err);
+            expect(res.status).toEqual(200);
+            expect(typeof res.text).toEqual('string');
+            done();
+          });
+          
+      });
+
 
       it('should return a 401 when user cant be authenticated', done => {
         request.get(`${url}/api/signin`)
@@ -98,4 +111,46 @@ describe('Auth routes', function() {
       });
     });
   });
+
+  describe('GET: /api/signin/token', () => {
+    describe('with a valid body', () => {
+      beforeEach(() => {
+        return fakeUser.create()
+          .then( mock => this.mock = mock);
+      }); 
+
+      it('should return a 401 when user cant be authenticated', done => {
+        request.get(`${url}/api/signin/token`)
+          .auth('fakeuser', 'fakepassword')
+          .end((err, res) => {
+            expect(res.status).toEqual(401);
+            done();
+          });
+      });
+      it('should return a 401 when user cant be authenticated', done => {
+        request.get(`${url}/api/signin/token`)
+          .end((err, res) => {
+            expect(res.status).toEqual(401);
+            done();
+          });
+      });
+      it('should return a 401 when user cant be authenticated', done => {
+        request.get(`${url}/api/signin/token`)
+          .set('Authorization', 'somestuff')
+          .end((err, res) => {
+            expect(res.status).toEqual(401);
+            done();
+          });
+      });
+      it('should return a 401 when user cant be authenticated', done => {
+        request.get(`${url}/api/signin/token`)
+          .set('Authorization', 'Basic somestuff')
+          .end((err, res) => {
+            expect(res.status).toEqual(401);
+            done();
+          });
+      });
+    });
+  });
+
 });
