@@ -153,12 +153,10 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
 
   League.findByIdAndUpdate(req.params.leagueID, { $push: { users: req.user._id }, $inc: { size: 1 }}, { new: true })
     .then(league => {
-      console.log('league: ', league);
       let scoreboard = { leagueID: league._id, userID: req.user._id, sportingEventID: league.sportingEventID };
       if (!scoreboard.leagueID || !scoreboard.userID || !scoreboard.sportingEventID)
         return next(createError(400, 'BAD REQUEST ERROR: expected a scoreboard leagueID, sportingEventID and userID'));
 
-      console.log('hi');
       return new ScoreBoard(scoreboard).save()
         .then(() => league)
         .catch(next);
@@ -166,7 +164,6 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
     .then(league => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { leagues: league._id }})
         .then(() => {
-          console.log('league: ', league);
           return res.json(league);
         })
         .catch(next);
