@@ -24,7 +24,7 @@ module.exports = new Router()
     // cors(),
     cors({
       credentials: true,
-      origin: process.env.CORS_ORIGINS.split(' '),
+      origin: process.env.CORS_ORIGINS,
     }),
     morgan('dev'),
     bindResponseMethods,
