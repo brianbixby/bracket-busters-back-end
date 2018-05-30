@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/sportsfellows/sports-app/badge.svg?branch=master)](https://coveralls.io/github/sportsfellows/sports-app?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/brianbixby/bracket-busters-back-end/badge.svg?branch=master)](https://coveralls.io/github/brianbixby/bracket-busters-back-end?branch=master)
 
 ## Project: Bracket Busters (NBA Pick 'em App)
 
