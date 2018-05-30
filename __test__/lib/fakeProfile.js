@@ -38,7 +38,7 @@ exports.create = function() {
     })
     .then( token => {
       mock.token = token;
-      console.log('mock: ', mock);
+      // console.log('mock: ', mock);
       return mock;    
     })
     .catch(console.log);
