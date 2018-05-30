@@ -8,10 +8,7 @@ const Game = require('../model/sportingEvent/game.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 
 describe('Game routes', function() {
@@ -63,7 +60,6 @@ describe('Game routes', function() {
       .then( () => done())
       .catch(done);
   });
-
   describe('POST: /api/sportingevent/:sportingeventId/game', () => {
     it('should return a /api/sportingevent/:sportingeventId/game and a 200 status', done => {
       request.post(`${url}/api/sportingevent/${this.sportingEvent._id}/game`)
@@ -81,7 +77,6 @@ describe('Game routes', function() {
           done();
         });
     });
-
     it('should return 404 for route not found', done => {
       request.post(`${url}/api/sportingevent/${this.sportingEvent._id}/ga`)
         .send({ homeTeam: this.team1, awayTeam: this.team2, dateTime: Date.now(), sportingEventID: this.sportingEvent._id, tags: 'championship game' })
@@ -93,7 +88,6 @@ describe('Game routes', function() {
           done();
         });
     });
-
     it('should return a 401 error, no token', done => {
       request.post(`${url}/api/sportingevent/${this.sportingEvent._id}/game`)
         .send({ homeTeam: this.team1, awayTeam: this.team2, dateTime: Date.now(), sportingEventID: this.sportingEvent._id, tags: 'championship game' })
@@ -105,7 +99,6 @@ describe('Game routes', function() {
           done();
         });
     });
-
     it('should return a 400 error, no body', done => {
       request.post(`${url}/api/sportingevent/${this.sportingEvent._id}/game`)
         .send()
@@ -117,7 +110,6 @@ describe('Game routes', function() {
           done();
         });
     });
-
     describe('GET: /api/game/:gameId && api/games', () => {
       beforeEach( done => {
         return new Game({ homeTeam: this.team1, awayTeam: this.team2, dateTime: Date.now(), sportingEventID: this.sportingEvent._id, tags: 'championship game' }).save()
@@ -127,7 +119,6 @@ describe('Game routes', function() {
           })
           .catch(done);
       });
-
       it('should return all game and a 200 status', done => {
         request.get(`${url}/api/games`)
           .set({
@@ -143,7 +134,6 @@ describe('Game routes', function() {
             done();
           });
       });
-
       it('should return a 401 when no token is provided', done => {
         request.get(`${url}/api/games`)
           .set({
@@ -154,8 +144,6 @@ describe('Game routes', function() {
             done();
           });
       });
-
-
       describe('PUT: /api/game/:gameId', () => {
         it('should update and return a game with a 200 status', done => {
           request.put(`${url}/api/game/${this.game._id}`)
@@ -170,7 +158,6 @@ describe('Game routes', function() {
               done();
             });
         });
-
         it('should  not update and return a 401 status', done => {
           request.put(`${url}/api/game/${this.game._id}`)
             .send({ loser: this.team2._id, winner: this.team1._id, homeScore: 70, awayScore: 67 })
@@ -182,7 +169,6 @@ describe('Game routes', function() {
               done();
             });
         });
-
         it('should  not update and return a 404 status for game not found', done => {
           request.put(`${url}/api/game/a`)
             .send({ loser: this.team2._id, winner: this.team1._id, homeScore: 70, awayScore: 67 })
@@ -206,9 +192,7 @@ describe('Game routes', function() {
             });
         });
 
-
         describe('POST: /api/games/:sportingEventID', () => {
-
           it('should return a games and a 200 status', done => {
             request.post(`${url}/api/games/${this.sportingEvent._id}`)
               .send()

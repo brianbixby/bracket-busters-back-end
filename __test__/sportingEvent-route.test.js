@@ -6,10 +6,7 @@ const SportingEvent = require('../model/sportingEvent/sportingEvent.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 const exampleSportingEvent = { sportingEventName: 'example name', desc: 'example desc', tags: 'example tag' };
 const exampleSportingEvent2 = { desc: 'example desc', tags: 'example tag' };
@@ -25,7 +22,6 @@ describe('Sporting event routes', function() {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        // this.mock.profile = this.mock.profile._rejectionHandler0;
         done();
       })
       .catch(done);
@@ -38,7 +34,6 @@ describe('Sporting event routes', function() {
       .then( () => done())
       .catch(done);
   });
-
   it('should post and return a sportingevent', done => {
     request.post(`${url}/api/sportingevent`)
       .send(exampleSportingEvent)
@@ -54,7 +49,6 @@ describe('Sporting event routes', function() {
         done();
       });
   });
-
   it('should return 404 for route not found', done => {
     request.post(`${url}/api/sportingeve`)
       .send(exampleSportingEvent)
@@ -66,7 +60,6 @@ describe('Sporting event routes', function() {
         done();
       });
   });
-
   it('should return a 401 error, no token', done => {
     request.post(`${url}/api/sportingevent`)
       .send(exampleSportingEvent)
@@ -78,7 +71,6 @@ describe('Sporting event routes', function() {
         done();
       });
   });
-
   it('should return a 400 error, body error', done => {
     request.post(`${url}/api/sportingevent`)
       .send(exampleSportingEvent2)
@@ -91,7 +83,6 @@ describe('Sporting event routes', function() {
       });
   });
 
-
   describe('GET: /api/sportingevents', () => {
     beforeEach( done => {
       return new SportingEvent(updatedSportingEvent).save()
@@ -101,23 +92,8 @@ describe('Sporting event routes', function() {
         })
         .catch(done);
     });
-
-    // it('should return a 401 when no token is provided', done => {
-    //   request.get(`${url}/api/sportingevents`)
-    //     .set({
-    //       Authorization: 'Bearer',
-    //     })
-    //     .end((err, res) => {
-    //       expect(res.status).toEqual(401);
-    //       done();
-    //     });
-    // });
-
     it('should return all sporting events', done => { 
       request.get(`${url}/api/sportingevents`)
-        // .set({
-        //   Authorization: `Bearer ${this.mock.token}`,
-        // })
         .end((err, res) => {
           if (err) return done(err);
           expect(res.status).toEqual(200);

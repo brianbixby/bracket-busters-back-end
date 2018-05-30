@@ -7,10 +7,7 @@ const fakeProfile  = require('./lib/fakeProfile.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const testUser = {
   username: 'testUserName',
   email: 'testEmail',
@@ -29,7 +26,6 @@ describe('Auth routes', () => {
   afterAll(done => {
     serverToggle.serverOff(server, done);
   });
-
   describe('POST: /api/signup', function() {
     describe('with a valid body', () => {
       afterEach(done => {
@@ -65,7 +61,6 @@ describe('Auth routes', () => {
           .then(() => done())
           .catch(done);
       });
-
       it('should return a 400 error, incomplete req.body fields', done => {
         request.post(`${url}/api/signup`)
           .send(incompleteTestUser)
@@ -79,7 +74,6 @@ describe('Auth routes', () => {
       });
     });
   });
-
   describe('GET: /api/signup/usernames/:username', function() {
     describe('with a taken username', () => {
       beforeAll(() => {
@@ -113,7 +107,6 @@ describe('Auth routes', () => {
       });
     });
   });
-
   describe('GET: /api/signin', function() {
     describe('with a valid body', () => {
       beforeEach(() => {
@@ -127,7 +120,6 @@ describe('Auth routes', () => {
           .then(() => done())
           .catch(done);
       });
-
       it('should return a token', done => {
         request.get(`${url}/api/signin`)
           .auth(this.mock.requestUser.username, this.mock.requestUser.password)
@@ -138,7 +130,6 @@ describe('Auth routes', () => {
             done();
           });
       });
-
       it('should return a 401 when user cant be authenticated', done => {
         request.get(`${url}/api/signin`)
           .auth('fakeuser', 'fakepassword')
@@ -149,7 +140,6 @@ describe('Auth routes', () => {
       });
     });
   });
-
   describe('GET: /api/signin/token', function() {
     describe('with a valid body', () => {
       beforeEach(() => {
@@ -163,7 +153,6 @@ describe('Auth routes', () => {
           .then(() => done())
           .catch(done);
       });
-
       it('should return a token', done => {
         oldToken = this.mock.token;
         request.get(`${url}/api/signin/token`)

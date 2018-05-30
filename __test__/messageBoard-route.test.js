@@ -9,10 +9,7 @@ const Group = require('../model/league/group.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
@@ -108,7 +105,6 @@ describe('MessageBoard routes', function() {
             done();
           });
       });
-
       it('should return a single messageboard', done => { 
         request.get(`${url}/api/messageboard/${this.messageBoard2._id}`)
           .set({
@@ -122,7 +118,6 @@ describe('MessageBoard routes', function() {
             done();
           });
       });
-
       it('should return a 401 when no token is provided', done => {
         request.get(`${url}/api/messageboard/${this.messageBoard1._id}`)
           .set({
@@ -133,7 +128,6 @@ describe('MessageBoard routes', function() {
             done();
           });
       });
-
       it('should return a 404 for a valid req with a message board id not found', done => {
         request.get(`${url}/api/messageboard/egewgrgewhewrh`)
           .set({
@@ -157,7 +151,6 @@ describe('MessageBoard routes', function() {
           .end((err, res) => {
             if (err) return done(err);
             expect(res.status).toEqual(200);
-            console.log('res.body: ', res.body);
             expect(res.body[0].leagueID.toString()).toEqual(this.league._id.toString());
             expect(res.body[0].tags.toString()).toEqual('example tag');
             done();
@@ -186,7 +179,6 @@ describe('MessageBoard routes', function() {
           .end((err, res) => {
             if (err) return done(err);
             expect(res.status).toEqual(200);
-            console.log('res.body: ', res.body);
             expect(res.body[0].groupID.toString()).toEqual(this.group._id.toString());
             expect(res.body[0].tags.toString()).toEqual('example tag');
             done();

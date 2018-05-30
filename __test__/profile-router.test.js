@@ -5,10 +5,7 @@ const fakeProfile  = require('./lib/fakeProfile.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedProfile = { username: 'updatedUserName'};
 
 describe('Profile routes', function() {

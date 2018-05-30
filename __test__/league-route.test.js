@@ -13,10 +13,7 @@ const UserPick = require('../model/league/userPick.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const exampleLeague = {
   leagueName: faker.company.companyName(),
   scoring: 'some scoring',
@@ -46,7 +43,6 @@ describe('League routes', function() {
   afterAll(done => {
     serverToggle.serverOff(server, done);
   });
-
   beforeEach(done => {
     return fakeProfile.create()
       .then(mock => {
@@ -373,7 +369,6 @@ describe('League routes', function() {
         });
       });
     });
-
     describe('PUT: /api/league/:leagueId/removeuser', () => {
       describe('with invalid req', () => {
         it('should give 500 status', done => {
@@ -388,7 +383,6 @@ describe('League routes', function() {
         });
       });
     });
-
     describe('PUT: /api/league/:leagueId', () => {
       describe('with valid body and token', () => {
         it('should give 200 status', done => {
@@ -404,7 +398,6 @@ describe('League routes', function() {
             });
         });
       });
-  
       describe('with no body and valid token', () => {
         it('should give 400 status', done => {
           request.put(`${url}/api/league/${this.league._id}`)
@@ -418,7 +411,6 @@ describe('League routes', function() {
             });
         });
       });
-  
       describe('with valid body and no token', () => {
         it('should give 200 status', done => {
           request.put(`${url}/api/league/${this.league._id}`)
@@ -472,41 +464,4 @@ describe('League routes', function() {
       });
     });
   });
-
-
-
-
-
-
-
-
-  // describe('PUT: /api/league/leagueID/adduser', () => {
-  //   describe('with a valid body and id', () => {
-  //     it('should give us a 200 status', done => {
-  //       beforeEach(done => {
-  //         exampleLeague.sportingEventID = this.sportingEvent._id;
-  //         exampleLeague.owner = this.mock.profile.userID;
-  //         exampleLeague.ownerName = this.mock.profile.username;
-  //         return new League(exampleLeague).save()
-  //           .then(myLeague => {
-  //             this.league = myLeague;
-  //             done();
-  //           })
-  //           .catch(done);
-  //       });
-  //       request.put(`${url}/api/league/${this.league.id}/adduser`)
-  //         .set({
-  //           Authorization: `Bearer ${this.mock.token}`,
-  //         })
-  //         .send(exampleLeague)
-  //         .end((err, res) => {
-  //           if (err) return done(err);
-  //           expect(res.status).toEqual(200);
-  //           done();
-  //         });
-  //     });
-  //   });
-  // });
-  
-
 });

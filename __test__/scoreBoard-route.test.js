@@ -8,13 +8,9 @@ const League = require('../model/league/league.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
-
 
 describe('Scoreboard routes', function() {
   beforeAll( done => {
@@ -90,7 +86,6 @@ describe('Scoreboard routes', function() {
           done();
         });
     });
-  
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/scoreboards/${this.league._id}`)
         .set({
@@ -101,7 +96,6 @@ describe('Scoreboard routes', function() {
           done();
         });
     });
-  
     it('should return a 404 for a valid req with a scoreboard id not found', done => {
       request.get(`${url}/api/scoreboards/a`)
         .set({
@@ -112,7 +106,6 @@ describe('Scoreboard routes', function() {
           done();
         });
     });
-  
     it('should return all scoreboards and a 200 status', done => {
       request.get(`${url}/api/scoreboards`)
         .set({
@@ -127,7 +120,6 @@ describe('Scoreboard routes', function() {
           done();
         });
     });
-  
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/scoreboards`)
         .set({
@@ -138,7 +130,6 @@ describe('Scoreboard routes', function() {
           done();
         });
     });
-
     it('should return all top scoreboards and a 200 status', done => {
       request.get(`${url}/api/scoreboards/sportingevent/${this.sportingEvent._id}`)
         .set({
@@ -154,37 +145,4 @@ describe('Scoreboard routes', function() {
         });
     });
   });
-
-  // describe('404s', () => {
-  //   it('should return a 404 for a valid req with a scoreboard not found', done => {
-  //     request.get(`${url}/api/scoreboards/${this.league._id}`)
-  //       .set({
-  //         Authorization: `Bearer ${this.mock.token}`,
-  //       })
-  //       .end((err, res) => {
-  //         expect(res.status).toEqual(404);
-  //         done();
-  //       });
-  //   });
-  //   it('should return a 404 for a valid req with a scoreboard not found', done => {
-  //     request.get(`${url}/api/scoreboards`)
-  //       .set({
-  //         Authorization: `Bearer ${this.mock.token}`,
-  //       })
-  //       .end((err, res) => {
-  //         expect(res.status).toEqual(404);
-  //         done();
-  //       });
-  //   });
-  //   it('should return a 404 for a valid req with a scoreboard not found', done => {
-  //     request.get(`${url}/api/scoreboards/sportingevent/${this.sportingEvent._id}`)
-  //       .set({
-  //         Authorization: `Bearer ${this.mock.token}`,
-  //       })
-  //       .end((err, res) => {
-  //         expect(res.status).toEqual(404);
-  //         done();
-  //       });
-  //   });
-  // });
 });

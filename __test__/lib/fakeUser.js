@@ -23,7 +23,6 @@ exports.create = () => {
     .then(user => user.generateToken())
     .then(token => {
       mock.token = token;
-      // console.log('mock: ', mock);
       return mock;    
     })
     .catch(console.log);

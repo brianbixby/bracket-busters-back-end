@@ -11,10 +11,7 @@ const UserPick = require('../model/league/userPick.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
@@ -104,7 +101,6 @@ describe('UserPick routes', function() {
     delete exampleLeague.users;
     delete exampleLeague.ownerName;
   });
-
   describe('POST: /api/league/:leagueId/userpick', () => {
     it('should return a scoreboard and a 200 status', done => {
       request.post(`${url}/api/league/${this.league._id}/userpick`)
@@ -122,7 +118,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return a 401 error, no token', done => {
       request.post(`${url}/api/league/${this.league._id}/userpick`)
         .send({ userID: this.mock.profile.userID, leagueID: this.league._id, gameID: this.game._id, pick: this.team1._id, gameTime: Date.now() })
@@ -134,7 +129,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return a 400 error, no body', done => {
       request.post(`${url}/api/league/${this.league._id}/userpick`)
         .send()
@@ -157,7 +151,6 @@ describe('UserPick routes', function() {
         })
         .catch(done);
     });
-
     it('should return a userpick and a 200 status', done => {
       request.get(`${url}/api/userpick/${this.userPick._id}`)
         .set({
@@ -173,7 +166,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/userpick/${this.userPick._id}`)
         .set({
@@ -184,7 +176,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return a 404 for a valid req with a userpick id not found', done => {
       request.get(`${url}/api/userpick/ewgewgewghewh`)
         .set({
@@ -195,7 +186,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return all picks in a league and a 200 status', done => {
       request.get(`${url}/api/userpicks/${this.league._id}`)
         .set({
@@ -211,7 +201,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/userpicks/${this.league._id}`)
         .set({
@@ -222,7 +211,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     it('should return a 404 when no picks are found', done => {
       request.get(`${url}/api/userpicks/a`)
         .set({
@@ -233,7 +221,6 @@ describe('UserPick routes', function() {
           done();
         });
     });
-
     describe('PUT: /api/userpick/:userPickID', () => {
       it('should update and return a userpick with a 200 status', done => {
         request.put(`${url}/api/userpick/${this.userPick._id}`)
@@ -251,7 +238,6 @@ describe('UserPick routes', function() {
             done();
           });
       });
- 
       it('should not update and return a 401 status', done => {
         request.put(`${url}/api/userpick/${this.userPick._id}`)
           .send({ pick: this.team2._id})
@@ -263,7 +249,6 @@ describe('UserPick routes', function() {
             done();
           });
       });
- 
       it('should not update and return a 404 status for userpick not found', done => {
         request.put(`${url}/api/userpick/wegegewgw`)
           .send({ pick: this.team2._id})
@@ -275,7 +260,6 @@ describe('UserPick routes', function() {
             done();
           });
       });
-
       it('should return a 400 error, no body', done => {
         request.put(`${url}/api/userpick/${this.userPick._id}`)
           .send()

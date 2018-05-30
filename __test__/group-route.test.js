@@ -7,10 +7,7 @@ const Group = require('../model/league/group.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 let exampleGroup = {
   groupName: faker.company.companyName(),
   privacy: 'public',
@@ -41,9 +38,6 @@ describe('Group Routes', function () {
       })
       .catch(done);
   });
-
-  // POST TESTS START HERE
-
   describe('POST: /api/group', () => {
     describe('with valid body and token', () => {
       beforeEach(done => {
@@ -103,7 +97,6 @@ describe('Group Routes', function () {
       });
     });
   });
-
 
   describe('POST: /api/group/private/adduser', () => {
     describe('with valid body and token', () => {
@@ -375,8 +368,6 @@ describe('Group Routes', function () {
     });
   });
 
-  // PUT TESTS START HERE
-
   describe('PUT: /api/group/:groupId', () => {
     beforeEach(done => {
       new Group(exampleGroup).save()
@@ -499,8 +490,6 @@ describe('Group Routes', function () {
       });
     });
   });
-
-  // DELETE TESTS START HERE
 
   describe('DELETE: /api/group/:groupId', () => {
     beforeEach(done => {
