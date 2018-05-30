@@ -13,7 +13,6 @@ exports.create = () => {
     password: faker.internet.password(),
   };
 
-
   let user = new User(mock.request);
   return user.generatePasswordHash(mock.request.password)
     .then(user => user.save())
@@ -24,6 +23,7 @@ exports.create = () => {
     .then(user => user.generateToken())
     .then(token => {
       mock.token = token;
+      // console.log('mock: ', mock);
       return mock;    
     })
     .catch(console.log);
