@@ -175,19 +175,23 @@ leagueRouter.put('/api/league/:leagueID/adduser', bearerAuth, json(), (req, res,
 // http PUT :3000/api/league/:leagueID/removeuser 'Authorization:Bearer token'
 leagueRouter.put('/api/league/:leagueID/removeuser', bearerAuth, json(), (req, res, next) => {
   debug('PUT: /api/league/:leagueID/removeuser');
+  console.log('0############################################################0');
 
   League.findByIdAndUpdate(req.params.leagueID, { $pull: { users: req.user._id }, $inc: { size: -1 }}, { new: true })
     .then(league => {
+      console.log('1############################################################1');
       ScoreBoard.findOneAndRemove({ userID: req.user._id, leagueID: req.params.leagueID })
         .then(() => league)
         .catch(next);
     })
     .then(league => {
+      console.log('2############################################################2');
       UserPick.remove({ userID: req.user._id, leagueID: req.params.leagueID })
         .then(() => league)
         .catch(next);
     })
     .then(league => {
+      console.log('3############################################################3');
       Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { leagues: league._id }})
         .then(() => res.json(league))
         .catch(next);

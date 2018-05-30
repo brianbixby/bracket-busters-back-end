@@ -6,6 +6,10 @@ const faker = require('faker');
 const League = require('../model/league/league.js');
 const SportingEvent = require('../model/sportingEvent/sportingEvent.js');
 const fakeProfile = require('./lib/fakeProfile.js');
+const ScoreBoard = require('../model/league/scoreBoard.js');
+const Team = require('../model/sportingEvent/team.js');
+const Game = require('../model/sportingEvent/game.js');
+const UserPick = require('../model/league/userPick.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
@@ -24,7 +28,7 @@ const examplePrivateLeague = {
   leagueName: faker.company.companyName(),
   scoring: 'some scoring',
   poolSize: faker.random.number(),
-  privacy: 'public',
+  privacy: 'private',
   motto: 'league motto',
   password: 'password',
 };
@@ -35,7 +39,7 @@ const updatedSportingEvent = {
   tags: 'updated tag',
 };
 
-describe('League routes', () => {
+describe('League routes', function() {
   beforeAll(done => {
     serverToggle.serverOn(server, done);
   });
@@ -73,38 +77,34 @@ describe('League routes', () => {
     delete exampleLeague.owner;
   });
 
-  // describe('private leagues', () => {
-  //   describe('POST: /api/league/private/adduser', () => {
-  //     describe('with valid body and token', () => {
-  //       beforeEach(done => {
-  //         examplePrivateLeague.sportingEventID = this.sportingEvent._id;
-  //         examplePrivateLeague.owner = this.mock.profile.userID;
-  //         examplePrivateLeague.ownerName = this.mock.profile.username;
-  //         examplePrivateLeague.users = [this.mock.profile.userID];
-  //         return new League(examplePrivateLeague).save()
-  //           .then(myLeague => {
-  //             this.league = myLeague;
-  //             done();
-  //           })
-  //           .catch(done);
-  //       });
-  //       it('should give 200 status', done => {
-  //         request.post(`${url}/api/league/private/adduser`)
-  //           .set({
-  //             Authorization: `Bearer ${this.mock.token}`,
-  //           })
-  //           .send({ leagueName: this.league.leagueName, password: this.league.password })
-  //           .end((err, res) => {
-  //             expect(res.status).toEqual(200);
-  //             expect(res.body.leagueName).toEqual(examplePrivateLeague.leagueName);
-  //             expect(res.body.privacy).toEqual(examplePrivateLeague.privacy);
-  //             expect(res.body.motto).toEqual(examplePrivateLeague.motto);
-  //             done();
-  //           });
-  //       });
-  //     });
-  //   });
-  // });
+  describe('private leagues', () => {
+    describe('POST: /api/league/private/adduser', () => {
+      describe('with a invalid req', () => {
+        beforeEach(done => {
+          examplePrivateLeague.sportingEventID = this.sportingEvent._id;
+          examplePrivateLeague.owner = this.mock.profile.userID;
+          examplePrivateLeague.ownerName = this.mock.profile.username;
+          return new League(examplePrivateLeague).save()
+            .then(myLeague => {
+              this.league = myLeague;
+              done();
+            })
+            .catch(done);
+        });
+        it('should give 500 status', done => {
+          request.post(`${url}/api/league/private/adduser`)
+            .set({
+              Authorization: `Bearer ${this.mock.token}`,
+            })
+            .send({ leagueName: 'private', password: 'password' })
+            .end((err, res) => {
+              expect(res.status).toEqual(500);
+              done();
+            });
+        });
+      });
+    });
+  });
 
   describe('public leagues', () => {
     beforeEach(done => {
@@ -115,8 +115,59 @@ describe('League routes', () => {
       return new League(exampleLeague).save()
         .then(myLeague => {
           this.league = myLeague;
+          this.mock.profile.leagues = [this.league._id];
           done();
         })
+        .catch(done);
+    });
+    beforeEach( done => {
+      return new ScoreBoard({ userID: this.mock.profile.userID, leagueID: this.league._id, sportingEventID: this.sportingEvent._id }).save()
+        .then( sBoard => {
+          this.scoreBoard = sBoard;
+          done();
+        })
+        .catch(done);
+    });
+    beforeEach( done => {
+      return new Team({ teamName: 'team1', teamCity: 'seattle', image: 'www.image.com', color: 'blue', pretournamentRecord: '5 - 0', sportingEventID: this.sportingEvent._id }).save()
+        .then( team1 => {
+          this.team1 = team1;
+          done();
+        })
+        .catch(done);
+    });
+    beforeEach( done => {
+      return new Team({ teamName: 'team2', teamCity: 'portland', image: 'www.freeimage.com', color: 'red', pretournamentRecord: '0 - 5', sportingEventID: this.sportingEvent._id }).save()
+        .then( team2 => {
+          this.team2 = team2;
+          done();
+        })
+        .catch(done);
+    });
+    beforeEach( done => {
+      return new Game({ sportingEventID: this.sportingEvent._id, dateTime: Date.now(), homeTeam: this.team1._id, awayTeam: this.team2._id }).save()
+        .then( game => {
+          this.game = game;
+          done();
+        })
+        .catch(done);
+    });
+    beforeEach( done => {
+      return new UserPick({ userID: this.mock.profile.userID, leagueID: this.league._id, gameID: this.game._id, pick: this.team1._id, gameTime: Date.now() }).save()
+        .then( userPick => {
+          this.userPick = userPick;
+          done();
+        })
+        .catch(done);
+    });
+    afterEach( done => {
+      Promise.all([
+        ScoreBoard.remove({}),
+        Team.remove({}),
+        Game.remove({}),
+        UserPick.remove({}),
+      ])
+        .then(() => done())
         .catch(done);
     });
     describe('POST: /api/sportingevent/sportingeventId/league', () => {
@@ -322,20 +373,22 @@ describe('League routes', () => {
         });
       });
     });
-    // describe('PUT: /api/league/:leagueId/removeuser', () => {
-    //   describe('with valid id and token', () => {
-    //     it('should give 200 status', done => {
-    //       request.put(`${url}/api/league/${this.league._id}/removeuser`)
-    //         .set({
-    //           Authorization: `Bearer ${this.mock.token}`,
-    //         })
-    //         .end((err, res) => {
-    //           expect(res.status).toEqual(200);
-    //           done();
-    //         });
-    //     });
-    //   });
-    // });
+
+    describe('PUT: /api/league/:leagueId/removeuser', () => {
+      describe('with invalid req', () => {
+        it('should give 500 status', done => {
+          request.put(`${url}/api/league/${this.league._id}/removeuser`)
+            .set({
+              Authorization: `Bearer ${this.mock.token}`,
+            })
+            .end((err, res) => {
+              expect(res.status).toEqual(500);
+              done();
+            });
+        });
+      });
+    });
+
     describe('PUT: /api/league/:leagueId', () => {
       describe('with valid body and token', () => {
         it('should give 200 status', done => {
