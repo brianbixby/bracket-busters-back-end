@@ -1,10 +1,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/sportsfellows/sports-app/badge.svg?branch=master)](https://coveralls.io/github/sportsfellows/sports-app?branch=master)
 
-# Code Fellows: Code 401d22: Full-Stack JavaScript
+## Project: Bracket Busters (NBA Pick 'em App)
 
-## Project: CF Madness (sports bracket app)
-
-CF Madness is an application allows users to compete against their friends by choosing winners for real world sports games. 
+Bracket Busters is an application allows users to compete against their friends by choosing winners for real world sports games. 
 
 You are able to create and manage your own leagues and will have a personal scoreboard for each participant. Each league will also have its own message board that will allow you to communicate with those in your league. Each league also has the option to be private or public.
 
@@ -20,26 +18,23 @@ If you are not participating in a league or would like to communicate with those
 - npm
 - node packages
   - Production
-    - aws-sdk
     - bcrypt
     - bluebird
-    - body-parser 
     - cors
     - coveralls
     - crypto 
     - debug 
     - del 
     - dotenv 
-    - express 
-    - faker 
+    - express  
     - http-errors 
     - istanbul 
     - jsonwebtoken 
     - mongoose 
     - morgan
-    - multer 
-  - Dev
+  - Development
     - eslint
+    - faker
     - jest
     - superagent
 
@@ -376,9 +371,6 @@ Brian Bixby
 ## License
 
 MIT. Use it up!
-
-MONGODB_URI='mongodb://localhost/sportsapptest'
-MONGODB_URI='mongodb://heroku_5s3dhwdr:vm0d8l4q47rb9psbn1o247o2in@ds263138.mlab.com:63138/heroku_5s3dhwdr'
 
 ## Deprecated Routes
 

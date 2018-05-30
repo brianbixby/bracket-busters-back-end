@@ -6,16 +6,17 @@ const sportingEventMockFactory = require('./fakeSportingEvent.js');
 const fakeUser = require('./fakeUser.js');
 const teamMockFactory = module.exports = {};
 
-// creates a mock team with a team name, seed, record
 teamMockFactory.create = () => {
   let mock = {};
   mock.teamRequest = {
     teamName: faker.name.firstName(),
     seed: faker.random.number(),
     pretournamentRecord: faker.random.number() + ' - ' + faker.random.number(),
+    color: faker.random.word(),
+    image: faker.random.word(),
+    teamCity: faker.random.word(),
   };
 
-  // creates a sporting event with an id
   return sportingEventMockFactory.create()
     .then(sportingEvent => {
       mock.sportingEvent = sportingEvent;

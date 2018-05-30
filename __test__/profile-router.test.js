@@ -5,10 +5,7 @@ const fakeProfile  = require('./lib/fakeProfile.js');
 const serverToggle = require('../lib/server-toggle.js');
 const server = require('../server.js');
 
-require('jest');
-
 const url = 'http://localhost:3000';
-
 const updatedProfile = { username: 'updatedUserName'};
 
 describe('Profile routes', function() {
@@ -56,7 +53,6 @@ describe('Profile routes', function() {
             done();
           });
       });
-
       it('should return a 401 when no token is provided', done => {
         request.get(`${url}/api/profiles/currentuser`)
           .set({
@@ -67,8 +63,7 @@ describe('Profile routes', function() {
             done();
           });
       });
-  
-      it('should return a 404 for a valid req with a list id not found', done => {
+      it('should return a 404 for a valid req with a profile not found', done => {
         request.get(`${url}/api/profiles/current`)
           .set({
             Authorization: `Bearer ${this.mock.token}`,
@@ -95,7 +90,6 @@ describe('Profile routes', function() {
             done();
           });
       });
-
       it('should return a 401 when no token is provided', done => {
         request.post(`${url}/api/profiles/group`)
           .send([`${this.mock.profile.userID}`])
@@ -126,7 +120,6 @@ describe('Profile routes', function() {
             done();
           });
       });
-
       it('should  not update and return a 401 status', done => {
         request.put(`${url}/api/profile/${this.mock.profile._id}`)
           .send(updatedProfile)
@@ -138,9 +131,8 @@ describe('Profile routes', function() {
             done();
           });
       });
-
       it('should  not update and return a 404 status for profile not found', done => {
-        request.put(`${url}/api/profile/a`)
+        request.put(`${url}/api/profile/arebrweberber`)
           .send(updatedProfile)
           .set({
             Authorization: `Bearer ${this.mock.token}`,

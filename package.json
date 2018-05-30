@@ -1,16 +1,14 @@
 {
   "name": "bracketbusters",
   "version": "1.0.0",
-  "description": "",
+  "description": "The backend for a MERN stack Pick 'em App.",
   "main": "server.js",
   "directories": {
     "lib": "lib"
   },
   "dependencies": {
-    "aws-sdk": "^2.207.0",
     "bcrypt": "^1.0.3",
     "bluebird": "^3.5.1",
-    "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "coveralls": "^3.0.0",
     "crypto": "^1.0.1",
@@ -22,8 +20,7 @@
     "istanbul": "^0.4.5",
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.0.9",
-    "morgan": "^1.9.0",
-    "multer": "^1.3.0"
+    "morgan": "^1.9.0"
   },
   "devDependencies": {
     "eslint": "^4.18.2",
@@ -41,13 +38,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sportsfellows/sports-app.git"
+    "url": "git+https://github.com/brianbixby/bracket-busters-back-end.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Brian Bixby",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sportsfellows/sports-app#issues"
+    "url": "https://github.com/brianbixby/bracket-busters-back-end#issues"
   },
-  "homepage": "https://github.com/sportsfellows/sports-app#readme"
+  "homepage": "https://github.com/brianbixby/bracket-busters-back-end#readme"
 }

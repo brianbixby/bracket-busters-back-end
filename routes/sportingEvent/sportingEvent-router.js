@@ -36,7 +36,6 @@ sportingEventRouter.get('/api/sportingevents', (req, res, next) => {
     .then(sportingEvents => {
       if(!sportingEvents)
         return next(createError(404, 'NOT FOUND ERROR: sportingEvents not found'));
-      console.log('sportingEvents: ', sportingEvents);
       res.json(sportingEvents);
     })
     .catch(next);
