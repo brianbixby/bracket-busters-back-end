@@ -14,7 +14,7 @@ require('jest');
 const url = 'http://localhost:3000';
 
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
-const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'private'}; 
+const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
 describe('MessageBoard routes', function() {
   beforeAll( done => {
@@ -27,7 +27,6 @@ describe('MessageBoard routes', function() {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        // this.mock.profile = this.mock.profile._rejectionHandler0;
         done();
       })
       .catch(done);
@@ -43,6 +42,8 @@ describe('MessageBoard routes', function() {
   beforeEach(done => {
     exampleLeague.sportingEventID = this.sportingEvent._id;
     exampleLeague.owner = this.mock.profile.userID;
+    exampleLeague.users = [this.mock.profile.userId];
+    exampleLeague.ownerName = this.mock.profile.username;
     return new League(exampleLeague).save()
       .then(myLeague => {
         this.league = myLeague;
@@ -51,19 +52,9 @@ describe('MessageBoard routes', function() {
       .catch(done);
   });
   beforeEach( done => {
-    return new Group({ groupName: 'example group', privacy: 'public', owner: this.mock.profile.userID }).save()
+    return new Group({ groupName: 'example group', privacy: 'public', motto: 'group mottp', owner: this.mock.profile.userID, ownerName: this.mock.profile.username, users: [this.mock.profile.userID] }).save()
       .then( group => {
         this.group = group;
-        done();
-      })
-      .catch(done);
-  });
-  beforeEach( done => {
-    exampleLeague.sportingEventID = this.sportingEvent._id;
-    exampleLeague.owner = this.mock.profile.userID;
-    return new League(exampleLeague).save()
-      .then( myLeague => {
-        this.league = myLeague;
         done();
       })
       .catch(done);
@@ -92,12 +83,14 @@ describe('MessageBoard routes', function() {
       MessageBoard.remove({}),
       Group.remove({}),
     ])
-      .then( () => done())
+      .then(() => done())
       .catch(done);
   });
   afterEach( () => {
     delete exampleLeague.sportingEventID;
     delete exampleLeague.owner;
+    delete exampleLeague.users;
+    delete exampleLeague.ownerName;
   });
   
   describe('GET: /api/messageboard/:messageBoardId', () => {
@@ -108,7 +101,6 @@ describe('MessageBoard routes', function() {
             Authorization: `Bearer ${this.mock.token}`,
           })
           .end((err, res) => {
-            console.log(res.body);
             if (err) return done(err);
             expect(res.status).toEqual(200);
             expect(res.body.leagueID.toString()).toEqual(this.league._id.toString());
@@ -152,19 +144,61 @@ describe('MessageBoard routes', function() {
             done();
           });
       });
+    });
+  });
 
-      it('should return all message boards', done => { 
-        request.get(`${url}/api/messageboards`)
+  describe('GET: /api/messageboard/league/:leagueID', () => {
+    describe('with a valid body', () => {
+      it('should return a single messageboard', done => { 
+        request.get(`${url}/api/messageboard/league/${this.league._id}`)
           .set({
             Authorization: `Bearer ${this.mock.token}`,
           })
           .end((err, res) => {
             if (err) return done(err);
             expect(res.status).toEqual(200);
+            console.log('res.body: ', res.body);
             expect(res.body[0].leagueID.toString()).toEqual(this.league._id.toString());
             expect(res.body[0].tags.toString()).toEqual('example tag');
-            expect(res.body[1].groupID.toString()).toEqual(this.group._id.toString());
-            expect(res.body[1].tags.toString()).toEqual('example tag');
+            done();
+          });
+      });
+      it('should return a 404 for a valid req with a message board id not found', done => {
+        request.get(`${url}/api/messageboard/league/a`)
+          .set({
+            Authorization: `Bearer ${this.mock.token}`,
+          })
+          .end((err, res) => {
+            expect(res.status).toEqual(404);
+            done();
+          });
+      });
+    });
+  });
+
+  describe('GET: /api/messageboard/group/:groupID', () => {
+    describe('with a valid body', () => {
+      it('should return a single messageboard', done => { 
+        request.get(`${url}/api/messageboard/group/${this.group._id}`)
+          .set({
+            Authorization: `Bearer ${this.mock.token}`,
+          })
+          .end((err, res) => {
+            if (err) return done(err);
+            expect(res.status).toEqual(200);
+            console.log('res.body: ', res.body);
+            expect(res.body[0].groupID.toString()).toEqual(this.group._id.toString());
+            expect(res.body[0].tags.toString()).toEqual('example tag');
+            done();
+          });
+      });
+      it('should return a 404 for a valid req with a message board id not found', done => {
+        request.get(`${url}/api/messageboard/group/a`)
+          .set({
+            Authorization: `Bearer ${this.mock.token}`,
+          })
+          .end((err, res) => {
+            expect(res.status).toEqual(404);
             done();
           });
       });
