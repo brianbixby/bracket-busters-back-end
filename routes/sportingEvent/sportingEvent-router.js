@@ -29,7 +29,7 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
 
 // fetch all sporting events
 // http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
-sportingEventRouter.get('/api/sportingevents', (req, res, next) => {
+sportingEventRouter.get('/api/sportingevents', bearerAuth, (req, res, next) => {
   debug('GET: /api/sportingevents');
 
   SportingEvent.find()

@@ -13,6 +13,9 @@ teamMockFactory.create = () => {
     teamName: faker.name.firstName(),
     seed: faker.random.number(),
     pretournamentRecord: faker.random.number() + ' - ' + faker.random.number(),
+    color: faker.random.word(),
+    image: faker.random.word(),
+    teamCity: faker.random.word(),
   };
 
   // creates a sporting event with an id
