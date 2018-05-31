@@ -15,25 +15,26 @@ const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
 describe('Comment routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
+      .catch(done);
+  });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach( done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then( sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -45,7 +46,7 @@ describe('Comment routes', function() {
     return new League(exampleLeague).save()
       .then( myLeague => {
         this.league = myLeague;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -53,7 +54,7 @@ describe('Comment routes', function() {
     return new ScoreBoard({ userID: this.mock.profile.userID, leagueID: this.league._id, sportingEventID: this.sportingEvent._id }).save()
       .then( sBoard => {
         this.scoreBoard = sBoard;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -61,13 +62,12 @@ describe('Comment routes', function() {
     return new MessageBoard({ leagueID: this.league._id }).save()
       .then( mBoard => {
         this.messageBoard = mBoard;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
+    return Promise.all([
       SportingEvent.remove({}),
       League.remove({}),
       ScoreBoard.remove({}),
@@ -77,7 +77,7 @@ describe('Comment routes', function() {
       .then(() => done())
       .catch(done);
   });
-  afterEach( () => {
+  afterEach(() => {
     delete exampleLeague.sportingEventID;
     delete exampleLeague.owner;
     delete exampleLeague.users;
@@ -114,7 +114,7 @@ describe('Comment routes', function() {
       request.post(`${url}/api/messageboard/${this.messageBoard._id}/comment`)
         .send({ userID: this.mock.profile.userID, messageBoardID: this.messageBoard._id, content: 'example content' })
         .set({
-          Authorization: `Bearer`,
+          Authorization: `Bearer `,
         })
         .end((err, res) => {
           expect(res.status).toEqual(401);
@@ -123,7 +123,7 @@ describe('Comment routes', function() {
     });
     it('should return a 400 error, no body', done => {
       request.post(`${url}/api/messageboard/${this.messageBoard._id}/comment`)
-        .send()
+        .send({})
         .set({
           Authorization: `Bearer ${this.mock.token}`,
         })
@@ -139,7 +139,7 @@ describe('Comment routes', function() {
       return new Comment({ userID: this.mock.profile.userID, username: this.mock.profile.username, messageBoardID: this.messageBoard._id, content: 'example content' }).save()
         .then( commentz => {
           this.comment = commentz;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -177,7 +177,7 @@ describe('Comment routes', function() {
       return new Comment({ userID: this.mock.profile.userID, username: this.mock.profile.username, messageBoardID: this.messageBoard._id, content: 'example content' }).save()
         .then( commentz => {
           this.comment = commentz;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -198,7 +198,7 @@ describe('Comment routes', function() {
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/comment/${this.comment._id}`)
         .set({
-          Authorization: `Bearer`,
+          Authorization: `Bearer `,
         })
         .end((err, res) => {
           expect(res.status).toEqual(401);
@@ -232,7 +232,7 @@ describe('Comment routes', function() {
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/comments`)
         .set({
-          Authorization: 'Bearer',
+          Authorization: 'Bearer ',
         })
         .end((err, res) => {
           expect(res.status).toEqual(401);

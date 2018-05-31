@@ -13,25 +13,26 @@ const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
 describe('Scoreboard routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
+      .catch(done);
+  });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach( done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then( sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -43,7 +44,7 @@ describe('Scoreboard routes', function() {
     return new League(exampleLeague).save()
       .then( myLeague => {
         this.league = myLeague;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -51,21 +52,20 @@ describe('Scoreboard routes', function() {
     return new ScoreBoard({ userID: this.mock.profile.userID, leagueID: this.league._id, sportingEventID: this.sportingEvent._id }).save()
       .then( sBoard => {
         this.scoreBoard = sBoard;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
+    return Promise.all([
       SportingEvent.remove({}),
       League.remove({}),
       ScoreBoard.remove({}),
     ])
-      .then( () => done())
+      .then(() => done())
       .catch(done);
   });
-  afterEach( () => {
+  afterEach(() => {
     delete exampleLeague.sportingEventID;
     delete exampleLeague.owner;
     delete exampleLeague.users;

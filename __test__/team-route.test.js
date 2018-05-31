@@ -11,35 +11,35 @@ const url = 'http://localhost:3000';
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 
 describe('Team routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
+      .catch(done);
+  });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach( done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then( sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
+    return Promise.all([
       SportingEvent.remove({}),
       Team.remove({}),
     ])
-      .then( () => done())
+      .then(() => done())
       .catch(done);
   });
   it('should post and return a team', done => {
@@ -83,7 +83,7 @@ describe('Team routes', function() {
   });
   it('should return a 400 error, body error', done => {
     request.post(`${url}/api/sportingevent/${this.sportingEvent._id}/team`)
-      .send()
+      .send({})
       .set({
         Authorization: `Bearer ${this.mock.token}`,
       })

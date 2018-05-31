@@ -14,25 +14,26 @@ const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
 describe('MessageBoard routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
+      .catch(done);
+  });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach( done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then( sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -44,7 +45,7 @@ describe('MessageBoard routes', function() {
     return new League(exampleLeague).save()
       .then(myLeague => {
         this.league = myLeague;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -52,7 +53,7 @@ describe('MessageBoard routes', function() {
     return new Group({ groupName: 'example group', privacy: 'public', motto: 'group mottp', owner: this.mock.profile.userID, ownerName: this.mock.profile.username, users: [this.mock.profile.userID] }).save()
       .then( group => {
         this.group = group;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -60,7 +61,7 @@ describe('MessageBoard routes', function() {
     return new MessageBoard({ leagueID: this.league._id, tags: 'example tag' }).save()
       .then( messageBoard1 => {
         this.messageBoard1 = messageBoard1;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -68,13 +69,12 @@ describe('MessageBoard routes', function() {
     return new MessageBoard({ groupID: this.group._id, tags: 'example tag' }).save()
       .then( messageBoard2 => {
         this.messageBoard2 = messageBoard2;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
+    return Promise.all([
       SportingEvent.remove({}),
       League.remove({}),
       MessageBoard.remove({}),

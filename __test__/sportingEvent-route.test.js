@@ -12,26 +12,24 @@ const exampleSportingEvent = { sportingEventName: 'example name', desc: 'example
 const exampleSportingEvent2 = { desc: 'example desc', tags: 'example tag' };
 
 describe('Sporting event routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
       .catch(done);
   });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
+      .catch(done);
+  });
   afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
-      SportingEvent.remove({}),
-    ])
-      .then( () => done())
+    return SportingEvent.remove({})
+      .then(() => done())
       .catch(done);
   });
   it('should post and return a sportingevent', done => {
@@ -88,7 +86,7 @@ describe('Sporting event routes', function() {
       return new SportingEvent(updatedSportingEvent).save()
         .then( sportingEve => {
           this.sportingEvent = sportingEve;
-          done();
+          return done();
         })
         .catch(done);
     });

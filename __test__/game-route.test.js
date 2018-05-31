@@ -12,25 +12,26 @@ const url = 'http://localhost:3000';
 const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated desc', tags: 'updated tag' };
 
 describe('Game routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach(done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
+      .catch(done);
+  });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach(done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then(sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -38,7 +39,7 @@ describe('Game routes', function() {
     return new Team({ teamName: 'team1', teamCity: 'seattle', image: 'www.image.com', pretournamentRecord: '20 - 0', color: 'red', sportingEventID: this.sportingEvent._id }).save()
       .then( team1 => {
         this.team1 = team1;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -46,18 +47,17 @@ describe('Game routes', function() {
     return new Team({ teamName: 'team2', teamCity: 'portland', image: 'www.image2.com', pretournamentRecord: '0 - 20', color: 'green', sportingEventID: this.sportingEvent._id }).save()
       .then( team2 => {
         this.team2 = team2;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
+    return Promise.all([
       SportingEvent.remove({}),
       Team.remove({}),
       Game.remove({}),
     ])
-      .then( () => done())
+      .then(() => done())
       .catch(done);
   });
   describe('POST: /api/sportingevent/:sportingeventId/game', () => {
@@ -101,7 +101,7 @@ describe('Game routes', function() {
     });
     it('should return a 400 error, no body', done => {
       request.post(`${url}/api/sportingevent/${this.sportingEvent._id}/game`)
-        .send()
+        .send({})
         .set({
           Authorization: `Bearer ${this.mock.token}`,
         })
@@ -115,7 +115,7 @@ describe('Game routes', function() {
         return new Game({ homeTeam: this.team1, awayTeam: this.team2, dateTime: Date.now(), sportingEventID: this.sportingEvent._id, tags: 'championship game' }).save()
           .then( game => {
             this.game = game;
-            done();
+            return done();
           })
           .catch(done);
       });
@@ -195,7 +195,7 @@ describe('Game routes', function() {
         describe('POST: /api/games/:sportingEventID', () => {
           it('should return a games and a 200 status', done => {
             request.post(`${url}/api/games/${this.sportingEvent._id}`)
-              .send()
+              .send({})
               .set({
                 Authorization: `Bearer ${this.mock.token}`,
               })
