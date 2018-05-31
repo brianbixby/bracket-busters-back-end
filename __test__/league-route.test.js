@@ -37,31 +37,31 @@ const updatedSportingEvent = {
 };
 
 describe('League routes', function() {
-  beforeAll(done => {
-    serverToggle.serverOn(server, done);
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
+  beforeAll( done => {
+    return fakeProfile.create()
+      .then( mock => {
+        this.mock = mock;
+        return done();
+      })
+      .catch(done);
   });
   afterAll(done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach(done => {
-    return fakeProfile.create()
-      .then(mock => {
-        this.mock = mock;
-        done();
-      })
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach(done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then(sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach(done => {
-    Promise.all([
-      fakeProfile.remove(),
+    return Promise.all([
       SportingEvent.remove({}),
       League.remove({}),
     ])
@@ -83,7 +83,7 @@ describe('League routes', function() {
           return new League(examplePrivateLeague).save()
             .then(myLeague => {
               this.league = myLeague;
-              done();
+              return done();
             })
             .catch(done);
         });
@@ -112,7 +112,7 @@ describe('League routes', function() {
         .then(myLeague => {
           this.league = myLeague;
           this.mock.profile.leagues = [this.league._id];
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -120,7 +120,7 @@ describe('League routes', function() {
       return new ScoreBoard({ userID: this.mock.profile.userID, leagueID: this.league._id, sportingEventID: this.sportingEvent._id }).save()
         .then( sBoard => {
           this.scoreBoard = sBoard;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -128,7 +128,7 @@ describe('League routes', function() {
       return new Team({ teamName: 'team1', teamCity: 'seattle', image: 'www.image.com', color: 'blue', pretournamentRecord: '5 - 0', sportingEventID: this.sportingEvent._id }).save()
         .then( team1 => {
           this.team1 = team1;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -136,7 +136,7 @@ describe('League routes', function() {
       return new Team({ teamName: 'team2', teamCity: 'portland', image: 'www.freeimage.com', color: 'red', pretournamentRecord: '0 - 5', sportingEventID: this.sportingEvent._id }).save()
         .then( team2 => {
           this.team2 = team2;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -144,7 +144,7 @@ describe('League routes', function() {
       return new Game({ sportingEventID: this.sportingEvent._id, dateTime: Date.now(), homeTeam: this.team1._id, awayTeam: this.team2._id }).save()
         .then( game => {
           this.game = game;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -152,12 +152,12 @@ describe('League routes', function() {
       return new UserPick({ userID: this.mock.profile.userID, leagueID: this.league._id, gameID: this.game._id, pick: this.team1._id, gameTime: Date.now() }).save()
         .then( userPick => {
           this.userPick = userPick;
-          done();
+          return done();
         })
         .catch(done);
     });
     afterEach( done => {
-      Promise.all([
+      return Promise.all([
         ScoreBoard.remove({}),
         Team.remove({}),
         Game.remove({}),
@@ -188,7 +188,7 @@ describe('League routes', function() {
       describe('with a bad body', () => {
         it('should send a 400 error', done => {
           request.post(`${url}/api/sportingevent/${this.league.sportingEventID}/league`)
-            .send()
+            .send({})
             .set({
               Authorization: `Bearer ${this.mock.token}`,
             })
@@ -248,7 +248,7 @@ describe('League routes', function() {
             .set({
               Authorization: `Bearer ${this.mock.token}`,
             })
-            .send()
+            .send({})
             .end((err, res) => {
               expect(res.status).toEqual(200);
               expect(res.body[0].leagueName).toEqual(exampleLeague.leagueName);
@@ -404,7 +404,7 @@ describe('League routes', function() {
             .set({
               Authorization: `Bearer ${this.mock.token}`,
             })
-            .send()
+            .send({})
             .end((err, res) => {
               expect(res.status).toEqual(400);
               done();

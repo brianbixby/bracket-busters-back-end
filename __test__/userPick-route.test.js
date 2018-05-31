@@ -16,25 +16,26 @@ const updatedSportingEvent = { sportingEventName: 'updated name', desc: 'updated
 const exampleLeague = { leagueName: 'example league name', scoring: 'regular', poolSize: 0, privacy: 'public', motto: 'league motto'}; 
 
 describe('UserPick routes', function() {
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
-  beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
+      .catch(done);
+  });
+  afterAll(done => {
+    return fakeProfile.remove()
+      .then(() => done())
       .catch(done);
   });
   beforeEach( done => {
     return new SportingEvent(updatedSportingEvent).save()
       .then( sportingEve => {
         this.sportingEvent = sportingEve;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -46,7 +47,7 @@ describe('UserPick routes', function() {
     return new League(exampleLeague).save()
       .then( myLeague => {
         this.league = myLeague;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -54,7 +55,7 @@ describe('UserPick routes', function() {
     return new ScoreBoard({ userID: this.mock.profile.userID, leagueID: this.league._id, sportingEventID: this.sportingEvent._id }).save()
       .then( sBoard => {
         this.scoreBoard = sBoard;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -62,7 +63,7 @@ describe('UserPick routes', function() {
     return new Team({ teamName: 'team1', teamCity: 'seattle', image: 'www.image.com', color: 'blue', pretournamentRecord: '5 - 0', sportingEventID: this.sportingEvent._id }).save()
       .then( team1 => {
         this.team1 = team1;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -70,7 +71,7 @@ describe('UserPick routes', function() {
     return new Team({ teamName: 'team2', teamCity: 'portland', image: 'www.freeimage.com', color: 'red', pretournamentRecord: '0 - 5', sportingEventID: this.sportingEvent._id }).save()
       .then( team2 => {
         this.team2 = team2;
-        done();
+        return done();
       })
       .catch(done);
   });
@@ -78,13 +79,12 @@ describe('UserPick routes', function() {
     return new Game({ sportingEventID: this.sportingEvent._id, dateTime: Date.now(), homeTeam: this.team1._id, awayTeam: this.team2._id }).save()
       .then( game => {
         this.game = game;
-        done();
+        return done();
       })
       .catch(done);
   });
-  afterEach( done => {
-    Promise.all([
-      fakeProfile.remove(),
+  afterEach(done => {
+    return Promise.all([
       SportingEvent.remove({}),
       League.remove({}),
       ScoreBoard.remove({}),
@@ -92,10 +92,10 @@ describe('UserPick routes', function() {
       Team.remove({}),
       Game.remove({}),
     ])
-      .then( () => done())
+      .then(() => done())
       .catch(done);
   });
-  afterEach( () => {
+  afterEach(() => {
     delete exampleLeague.sportingEventID;
     delete exampleLeague.owner;
     delete exampleLeague.users;
@@ -122,7 +122,7 @@ describe('UserPick routes', function() {
       request.post(`${url}/api/league/${this.league._id}/userpick`)
         .send({ userID: this.mock.profile.userID, leagueID: this.league._id, gameID: this.game._id, pick: this.team1._id, gameTime: Date.now() })
         .set({
-          Authorization: `Bearer`,
+          Authorization: `Bearer `,
         })
         .end((err, res) => {
           expect(res.status).toEqual(401);
@@ -131,7 +131,7 @@ describe('UserPick routes', function() {
     });
     it('should return a 400 error, no body', done => {
       request.post(`${url}/api/league/${this.league._id}/userpick`)
-        .send()
+        .send({})
         .set({
           Authorization: `Bearer ${this.mock.token}`,
         })
@@ -147,7 +147,7 @@ describe('UserPick routes', function() {
       return new UserPick({ userID: this.mock.profile.userID, leagueID: this.league._id, gameID: this.game._id, pick: this.team1._id, gameTime: Date.now() }).save()
         .then( userPick => {
           this.userPick = userPick;
-          done();
+          return done();
         })
         .catch(done);
     });
@@ -169,7 +169,7 @@ describe('UserPick routes', function() {
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/userpick/${this.userPick._id}`)
         .set({
-          Authorization: `Bearer`,
+          Authorization: `Bearer `,
         })
         .end((err, res) => {
           expect(res.status).toEqual(401);
@@ -204,7 +204,7 @@ describe('UserPick routes', function() {
     it('should return a 401 when no token is provided', done => {
       request.get(`${url}/api/userpicks/${this.league._id}`)
         .set({
-          Authorization: `Bearer`,
+          Authorization: `Bearer `,
         })
         .end((err, res) => {
           expect(res.status).toEqual(401);
@@ -262,7 +262,7 @@ describe('UserPick routes', function() {
       });
       it('should return a 400 error, no body', done => {
         request.put(`${url}/api/userpick/${this.userPick._id}`)
-          .send()
+          .send({})
           .set({
             Authorization: `Bearer ${this.mock.token}`,
           })

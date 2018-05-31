@@ -9,22 +9,18 @@ const url = 'http://localhost:3000';
 const updatedProfile = { username: 'updatedUserName'};
 
 describe('Profile routes', function() {
-  beforeAll( done => {
-    serverToggle.serverOn(server, done);
-  });
-  afterAll( done => {
-    serverToggle.serverOff(server, done);
-  });
+  beforeAll( done => serverToggle.serverOn(server, done));
+  afterAll( done => serverToggle.serverOff(server, done));
   beforeEach( done => {
     return fakeProfile.create()
       .then( mock => {
         this.mock = mock;
-        done();
+        return done();
       })
       .catch(done);
   });
   afterEach(done => {
-    Promise.all([
+    return Promise.all([
       fakeProfile.remove(),
     ])
       .then(() => done())

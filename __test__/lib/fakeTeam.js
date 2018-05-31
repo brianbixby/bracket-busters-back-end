@@ -21,18 +21,15 @@ teamMockFactory.create = () => {
     .then(sportingEvent => {
       mock.sportingEvent = sportingEvent;
       mock.teamRequest.sportingEventID = sportingEvent._id;
-
       return new Team(mock.teamRequest).save();
     })
     .then(team => {
       mock.team = team;
-
       return fakeUser.create();
     })
     .then(mockObject => {
       mock.token = mockObject.token;
       mock.user = mockObject.user;
-
       return mock;
     });
 };
