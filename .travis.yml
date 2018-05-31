@@ -1,18 +1,9 @@
 language: node_js
 node_js:
-  - 'stable'
+  - "lts/*"
 services:
   - mongodb
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - gcc-4.8
-      - g++-4.8
-env:
-  - CXX=g++-4.8
-sudo: required
+sudo: false
 before_script: npm i
 script:
   - npm test
