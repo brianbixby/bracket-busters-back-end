@@ -40,7 +40,7 @@
     "type": "git",
     "url": "git+https://github.com/brianbixby/bracket-busters-back-end.git"
   },
-  "keywords": [],
+  "keywords": ["Bracket Busters", "NBA", "MERN", "Pick 'em", "Brian Bixby"],
   "author": "Brian Bixby",
   "license": "MIT",
   "bugs": {
