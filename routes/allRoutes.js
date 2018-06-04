@@ -17,20 +17,15 @@ const profileRouter = require('./user/profile-router.js');
 const messageBoardRouter = require('./league/messageBoard-router.js');
 const commentRouter = require('./league/comment-router.js');
 const errors = require('./../lib/error-middleware.js');
-const whitelist = [process.env.CORS_ORIGINS, process.env.CORS_ORIGINS2];
-const corsOptionsDelegate = req => {
-  if (whitelist.indexOf(req.header('Origin')) !== -1) {
-    return { origin: true, credentials: true };
-  }else{
-    return { origin: false, credentials: true };
-  }
-};
 
 module.exports = new Router()
   .use([
     // GLOBAL MIDDLEWARE
     // cors(),
-    cors(corsOptionsDelegate),
+    cors({
+      credentials: true,
+      origin: process.env.CORS_ORIGINS,
+    }),
     morgan('dev'),
     bindResponseMethods,
     // ROUTERS
