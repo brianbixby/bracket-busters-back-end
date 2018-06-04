@@ -20,9 +20,9 @@ const errors = require('./../lib/error-middleware.js');
 const whitelist = [process.env.CORS_ORIGINS, process.env.CORS_ORIGINS2];
 const corsOptionsDelegate = req => {
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
-    return { origin: true };
+    return { origin: true, credentials: true };
   }else{
-    return { origin: false };
+    return { origin: false, credentials: true };
   }
 };
 
@@ -30,10 +30,7 @@ module.exports = new Router()
   .use([
     // GLOBAL MIDDLEWARE
     // cors(),
-    cors({
-      credentials: true,
-      corsOptionsDelegate,
-    }),
+    cors(corsOptionsDelegate),
     morgan('dev'),
     bindResponseMethods,
     // ROUTERS
