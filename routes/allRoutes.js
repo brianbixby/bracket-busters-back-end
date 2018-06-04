@@ -18,14 +18,12 @@ const messageBoardRouter = require('./league/messageBoard-router.js');
 const commentRouter = require('./league/comment-router.js');
 const errors = require('./../lib/error-middleware.js');
 const whitelist = [process.env.CORS_ORIGINS, process.env.CORS_ORIGINS2];
-const corsOptionsDelegate = function (req, callback) {
-  var corsOptions;
+const corsOptionsDelegate = req => {
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
-    corsOptions = { origin: true };
+    return { origin: true };
   }else{
-    corsOptions = { origin: false };
+    return { origin: false };
   }
-  callback(null, corsOptions);
 };
 
 module.exports = new Router()
