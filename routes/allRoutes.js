@@ -18,7 +18,7 @@ const messageBoardRouter = require('./league/messageBoard-router.js');
 const commentRouter = require('./league/comment-router.js');
 const errors = require('./../lib/error-middleware.js');
 
-let whiteList = [process.env.CORS_ORIGINS, process.env.CORS_ORIGINS];
+let whiteList = [process.env.CORS_ORIGINS, process.env.CORS_ORIGINS2];
 
 module.exports = new Router()
   .use([
