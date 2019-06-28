@@ -18,13 +18,22 @@ const messageBoardRouter = require('./league/messageBoard-router.js');
 const commentRouter = require('./league/comment-router.js');
 const errors = require('./../lib/error-middleware.js');
 
+let whiteList = [process.env.CORS_ORIGINS, process.env.CORS_ORIGINS];
+
 module.exports = new Router()
   .use([
     // GLOBAL MIDDLEWARE
     // cors(),
     cors({
       credentials: true,
-      origin: process.env.CORS_ORIGINS,
+      // origin: process.env.CORS_ORIGINS,
+      origin: (origin, cb) => {
+        if (whiteList.indexOf(origin) !== -1) {
+          cb(null, true);
+        } else {
+          cb(new Error('Not allowed by CORS'));
+        }
+      },
     }),
     morgan('dev'),
     bindResponseMethods,
