@@ -28,10 +28,10 @@ module.exports = new Router()
       credentials: true,
       // origin: process.env.CORS_ORIGINS,
       origin: (origin, cb) => {
-        if (whiteList.indexOf(origin) !== -1) {
+        if (whiteList.indexOf(origin) !== -1 || origin === undefined) {
           cb(null, true);
         } else {
-          cb(new Error('Not allowed by CORS: ', origin));
+          cb(new Error(`${origin} Not allowed by CORS`));
         }
       },
     }),
