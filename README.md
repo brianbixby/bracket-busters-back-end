@@ -21,27 +21,26 @@ Information about the frontend of Bracket Busters can be found here: [Bracket Bu
 - Heroku
 - Github
 - NPM/Yarn
-- Backend Node packages
+- Backend Node packages:
   - Production
-    - Bcrypt
+    - Bcryptjs
     - Bluebird
     - Cors
     - Coveralls
-    - Crypto 
     - Debug 
     - Del 
     - Dotenv 
     - Express  
     - Http-errors 
-    - Istanbul 
     - Jsonwebtoken 
     - Mongoose 
     - Morgan
+    - Nyc
   - Development
     - Eslint
     - Faker
     - Jest
-    - Superagent
+    - Superagent 
     
 - Frontend Node packages:
   - Autoprefixer          
@@ -67,6 +66,7 @@ Information about the frontend of Bracket Busters can be found here: [Bracket Bu
   - Validator                  
 - devDependencies:
   - Babel-jest
+  - babel-plugin-static-fs
   - Babel-plugin-stylus-compiler
   - Babel-plugin-transform-async-to-generator
   - Babel-plugin-transform-css-import-to-string
@@ -79,11 +79,10 @@ Information about the frontend of Bracket Busters can be found here: [Bracket Bu
   - Babel-preset-stage-0     
   - Enzyme          
   - Enzyme-adapter-react-16          
-  - Eslint          
-  - Eslint-plugin-react          
+  - Eslint                  
   - Jest          
   - Redux-devtools-extension
-  - Redux-logger  
+  - Redux-logger 
 
 ## Entity Relationship Diagram
 
