@@ -4,7 +4,7 @@
   "description": "The backend for a MERN stack Pick 'em App.",
   "engines": {
     "node": "12.5.0",
-    "yarn": "1.17.0",
+    "yarn": "1.17.3",
     "npm": "6.9.0"
   },
   "main": "server.js",
