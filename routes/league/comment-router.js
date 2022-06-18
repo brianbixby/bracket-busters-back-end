@@ -1,7 +1,6 @@
 'use strict';
 
 const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:comment-router');
 const createError = require('http-errors');
 
 const Comment = require('../../model/league/comment.js');
@@ -12,9 +11,7 @@ const commentRouter = module.exports = Router();
 
 // create a comment
 // http POST :3000/api/messageboard/:messageBoardID/comment 'Authorization:Bearer token' content='my content'
-commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/messageboard/:messageBoardID/comment'); 
-
+commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, (req, res, next) => {
   if (!req.body.content)
     return next(createError(400, 'BAD REQUEST ERROR: expected request body content'));
     
@@ -28,9 +25,7 @@ commentRouter.post('/api/messageboard/:messageBoardID/comment', bearerAuth, json
 });
 
 // fetches all comments for a messageboard by providing an array of comment ID's in the req.body
-commentRouter.post('/api/comments/messageboard', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/comments/messageboard');
-
+commentRouter.post('/api/comments/messageboard', bearerAuth, (req, res, next) => {
   Comment.find( { _id: { $in: req.body} } ).sort({ createdOn: -1 })
     .then(comments => {
       if(!comments)
@@ -43,8 +38,6 @@ commentRouter.post('/api/comments/messageboard', bearerAuth, json(), (req, res, 
 // fetch a single comment by ID
 // http GET :3000/api/comment/:commentID 'Authorization:Bearer token'
 commentRouter.get('/api/comment/:commentID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/comment/:commentID');
-
   Comment.findById(req.params.commentID)
     .then(comment => {
       if(!comment)
@@ -57,8 +50,6 @@ commentRouter.get('/api/comment/:commentID', bearerAuth, (req, res, next) => {
 // fetches all comments
 // http GET :3000/api/comments 'Authorization:Bearer token'
 commentRouter.get('/api/comments', bearerAuth, (req, res, next) => {
-  debug('GET: /api/comments');
-
   Comment.find()
     .then(comments => {
       if(!comments)

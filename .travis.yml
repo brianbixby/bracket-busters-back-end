@@ -1,9 +1,0 @@
-language: node_js
-node_js:
-  - 'stable'
-services:
-  - mongodb
-sudo: false
-install: npm i
-script:
-  - npm test

@@ -1,7 +1,6 @@
 'use strict';
 
 const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:profile-router');
 const createError = require('http-errors');
 
 const Profile = require('../../model/user/profile.js');
@@ -24,9 +23,7 @@ profileRouter.get('/api/profiles/currentuser', bearerAuth, (req, res, next) => {
 
 // gets array of usernames and profile images for group
 // http GET :3000/api/profiles/group 'Authorization:Bearer TOKEN'
-profileRouter.post('/api/profiles/group', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/profiles/group');
-
+profileRouter.post('/api/profiles/group', bearerAuth, (req, res, next) => {
   Profile.find({ userID: { $in: req.body }}).select('username image')
     .then(profiles => {
       if(!profiles)
@@ -38,9 +35,7 @@ profileRouter.post('/api/profiles/group', bearerAuth, json(), (req, res, next) =
 
 // update profile
 // http PUT :3000/api/profile/:profileID 'Authorization:Bearer TOKEN' username='new username'
-profileRouter.put('/api/profile/:profileID', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/profile:profileID');
-
+profileRouter.put('/api/profile/:profileID', bearerAuth, (req, res, next) => {
   req.body.lastLogin = new Date();
   Profile.findByIdAndUpdate(req.params.profileID, req.body, {new: true, runValidators: true})
     .then(myProfile => {

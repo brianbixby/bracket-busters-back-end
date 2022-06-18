@@ -1,8 +1,8 @@
 'use strict';
 
-const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:auth-router');
+const { Router } = require('express');
 const createError = require('http-errors');
+const bcrypt = require('bcrypt');
 
 const basicAuth = require('../../lib/basic-auth-middleware.js');
 const bearerAuth = require('../../lib/bearer-auth-middleware');
@@ -13,8 +13,7 @@ const authRouter = module.exports = Router();
 
 // create a user account
 // http POST :3000/api/signup username=username email=email@gmail.com password=password
-authRouter.post('/api/signup', json(), (req, res, next) => {
-  debug('POST: /api/signup');
+authRouter.post('/api/signup',  (req, res, next) => {
   const { username, password, email } = req.body;
   const message = !username ? 'expected a username'
     : !password ? 'expected a password'
@@ -44,8 +43,6 @@ authRouter.post('/api/signup', json(), (req, res, next) => {
 // signin to a user account
 // http -a username:password :3000/api/signin
 authRouter.get('/api/signin', basicAuth, (req, res, next) => {
-  debug('GET: /api/signin');
-
   let currentUser = User.findOne({ username: req.auth.username})
     .then(user => {
       if(!user)
@@ -71,8 +68,6 @@ authRouter.get('/api/signin', basicAuth, (req, res, next) => {
 
 // token signin, validates token and keeps users signedin
 authRouter.get('/api/signin/token', bearerAuth, (req, res, next) => {
-  debug('GET: /api/signin/token');
-
   let currentUser = User.findById(req.user._id)
     .then(user => {
       if(!user)

@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 
-const gameSchema = mongoose.Schema ({
+const gameSchema = new mongoose.Schema ({
   homeTeam: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'team' },
   awayTeam: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'team' },
   dateTime: { type: Date, required: true },

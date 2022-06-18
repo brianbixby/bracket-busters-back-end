@@ -23,7 +23,7 @@ Information about the frontend of Bracket Busters can be found here: [Bracket Bu
 - NPM/Yarn
 - Backend Node packages:
   - Production
-    - Bcryptjs
+    - Bcrypt
     - Bluebird
     - Cors
     - Coveralls

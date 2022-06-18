@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 
-const userPickSchema = mongoose.Schema({
+const userPickSchema = new mongoose.Schema({
   userID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },
   leagueID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'league' },
   gameID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'gameSchema' },

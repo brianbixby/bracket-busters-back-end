@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 
-const scoreBoardSchema = mongoose.Schema({
+const scoreBoardSchema = new mongoose.Schema({
   userID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },
   leagueID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'league' },
   sportingEventID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'sportingEvent' },

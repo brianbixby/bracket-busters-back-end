@@ -1,7 +1,6 @@
 'use strict';
 
-const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:group-router');
+const { Router } = require('express');
 const createError = require('http-errors');
 
 const Group = require('../../model/league/group.js');
@@ -13,9 +12,7 @@ const groupRouter = module.exports = Router();
 
 // create a group, it automatically creates a corresponding message baord and updates your profile
 // http POST :3000/api/group 'Authorization:Bearer token groupName='newgroupasfd' privacy='aewf'
-groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/group');
-
+groupRouter.post('/api/group', bearerAuth, (req, res, next) => {
   const { groupName, privacy } = req.body;
   const message = !groupName ? 'expected a groupName'
     : !privacy ? 'expected privacy'
@@ -45,9 +42,7 @@ groupRouter.post('/api/group', bearerAuth, json(), (req, res, next) => {
 
 // add user to private group, actually put route
 // http POST :3000/api/group/private/adduser 'Authorization:Bearer token groupName='groupname' password='password'
-groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/private/adduser');
-
+groupRouter.post('/api/group/private/adduser', bearerAuth, (req, res, next) => {
   Group.findOneAndUpdate({ groupName: req.body.groupName, password: req.body.password }, { $push: { users: req.user._id, userNames: req.user.username }, $inc: { size: 1 }}, { new: true })
     .then(group => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
@@ -59,9 +54,7 @@ groupRouter.post('/api/group/private/adduser', bearerAuth, json(), (req, res, ne
 
 // fetches all groups of logged in user, actually get route
 // http GET :3000/api/groups/user 'Authorization:Bearer token'
-groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/groups/user');
-
+groupRouter.post('/api/groups/user', bearerAuth, (req, res, next) => {
   Group.find( { _id: { $in: req.body} } )
     .then(groups => {
       if(!groups)
@@ -74,8 +67,6 @@ groupRouter.post('/api/groups/user', bearerAuth, json(), (req, res, next) => {
 // fetches a single group by ID
 // http GET :3000/api/group/:groupID 'Authorization:Bearer token'
 groupRouter.get('/api/group/:groupID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/group/:groupID');
-
   Group.findById(req.params.groupID) 
     .then(group => {
       if(!group)
@@ -87,9 +78,7 @@ groupRouter.get('/api/group/:groupID', bearerAuth, (req, res, next) => {
 
 // fetches all public groups
 // http GET :3000/api/groups/all/public 'Authorization:Bearer token'
-groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) => {
-  debug('GET: /api/groups/allpublic');
-
+groupRouter.get('/api/groups/all/public', bearerAuth, (req, res, next) => {
   Group.find({ privacy: 'public' })
     .then(groups => {
       if(!groups)
@@ -101,9 +90,7 @@ groupRouter.get('/api/groups/all/public', bearerAuth, json(), (req, res, next) =
 
 // fetches all public groups logged in user is not in
 // http GET :3000/api/groups/user 'Authorization:Bearer token'
-groupRouter.post('/api/groups/top', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/groups/top');
-
+groupRouter.post('/api/groups/top', bearerAuth, (req, res, next) => {
   Group.find( { privacy: 'public', _id: { $nin: req.body[0] }}).limit(10).sort({ size: -1 })
     .then(groups => {
       if(!groups)
@@ -116,8 +103,6 @@ groupRouter.post('/api/groups/top', bearerAuth, json(), (req, res, next) => {
 // group name availability check
 // http GET :3000/api/groupNames/:groupName
 groupRouter.get('/api/groupNames/:groupName', (req, res, next) => {
-  debug('GET: /api/groupNames/:groupName');
-
   Group.findOne({ groupName: req.params.groupName })
     .then( group => {
       if(!group) 
@@ -129,9 +114,7 @@ groupRouter.get('/api/groupNames/:groupName', (req, res, next) => {
 
 // adds a user to a group
 // http PUT :3000/api/group/:groupID/adduser 'Authorization:Bearer token'
-groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/:groupID/adduser');
-
+groupRouter.put('/api/group/:groupID/adduser', bearerAuth, (req, res, next) => {
   Group.findByIdAndUpdate(req.params.groupID, { $push: { users: req.user._id, userNames: req.user.username }, $inc: { size: 1 }}, { new: true }) 
     .then(group => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $push: { groups: group._id }})
@@ -143,9 +126,7 @@ groupRouter.put('/api/group/:groupID/adduser', bearerAuth, json(), (req, res, ne
 
 // removes a user from a group
 // http PUT :3000/api/group/:groupID/removeuser 'Authorization:Bearer token'
-groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/:groupID/removeuser');
-
+groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, (req, res, next) => {
   Group.findByIdAndUpdate(req.params.groupID, { $pull: { users: req.user._id, userNames: req.user.username }, $inc: { size: -1 }}, { new: true })
     .then(group => {
       Profile.findOneAndUpdate({ userID: req.user._id }, { $pull: { groups: group._id }})
@@ -157,9 +138,7 @@ groupRouter.put('/api/group/:groupID/removeuser', bearerAuth, json(), (req, res,
 
 // updates a group's settings
 // http PUT :3000/api/group/:groupID 'Authorization:Bearer token'
-groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/group/:groupID');
-
+groupRouter.put('/api/group/:groupID', bearerAuth, (req, res, next) => {
   let groupProperties = req.body.groupName 
    || req.body.privacy 
    || req.body.size 
@@ -193,8 +172,6 @@ groupRouter.put('/api/group/:groupID', bearerAuth, json(), (req, res, next) => {
 // delete a group
 // http DELETE :3000/api/group/:groupID 'Authorization:Bearer token'
 groupRouter.delete('/api/group/:groupID', bearerAuth, (req, res, next) => {
-  debug('DELETE: /api/group/:groupID');
-
   Group.findById(req.params.groupID)
     .then(group => {
       if(!group)

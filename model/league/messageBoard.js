@@ -1,12 +1,10 @@
 'use strict';
 
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
-const debug = require('debug')('bracketbusters:messageBoard');
 const createError = require('http-errors');
 const Comment = require('./comment.js');
 
-const messageBoardSchema = mongoose.Schema({
+const messageBoardSchema = new mongoose.Schema({
   leagueID: { type: mongoose.Schema.Types.ObjectId, ref: 'league' },
   groupID: { type: mongoose.Schema.Types.ObjectId, ref: 'group' },
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'comment' }],
@@ -16,8 +14,6 @@ const messageBoardSchema = mongoose.Schema({
 const MessageBoard = module.exports = mongoose.model('messageBoard', messageBoardSchema);
 
 MessageBoard.findByIdAndAddComment = function(id, comment) {
-  debug('findbyidandaddcomment');
-
   return new Comment(comment).save()
     .then(newComment => {
       return MessageBoard.findByIdAndUpdate(id, { $push: { comments: newComment._id }})

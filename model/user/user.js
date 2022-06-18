@@ -1,28 +1,24 @@
 'use strict';
 
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 const createError = require('http-errors');
-const debug = require('debug')('bracketbusters:user');
 
-const userSchema = mongoose.Schema({
-  username: {type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
+const userSchema = new mongoose.Schema({
+  username: {type: String, required: true },
+  email: { type: String, required: true },
   password: {type: String, required: true },
-  findHash: { type: String, unique: true },
+  findHash: { type: String, allowNull: true },
 });
 
 userSchema.methods.generatePasswordHash = function(password) {
-  debug('generate password hash');
-
   return new Promise((resolve, reject) => {
-    bcrypt.hash(password, 10, (err, hash) => {
-      if(err)
+    bcrypt.hash(password, 5, (err, hash) => {
+      if(err) {
+        console.log("gen passwd hash err: ", err);
         return reject(err);
-
+      }
       this.password = hash;
       resolve(this);
     });
@@ -30,8 +26,6 @@ userSchema.methods.generatePasswordHash = function(password) {
 };
 
 userSchema.methods.comparePasswordHash = function(password) {
-  debug('comparePasswordHash');
-
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, this.password, (err, valid) => {
       if(err)
@@ -46,14 +40,18 @@ userSchema.methods.comparePasswordHash = function(password) {
 };
 
 userSchema.methods.generateFindHash = function() {
-  debug('generateFindHash');
-
   return new Promise((resolve, reject) => {
     let tries = 0;
 
     _generateFindHash.call(this);
 
     function _generateFindHash() {
+        let crypto;
+        try {
+        crypto = require('node:crypto');
+        } catch (err) {
+        console.log('crypto support is disabled!');
+        }
       this.findHash = crypto.randomBytes(32).toString('hex');
       this.save()
         .then(() => resolve(this.findHash))
@@ -67,8 +65,6 @@ userSchema.methods.generateFindHash = function() {
 };
 
 userSchema.methods.generateToken = function() {
-  debug('generateToken');
-
   return new Promise((resolve, reject) => {
     this.generateFindHash()
       .then(findHash => resolve(jwt.sign({ token: findHash}, process.env.APP_SECRET)))

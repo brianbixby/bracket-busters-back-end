@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const MessageBoard = require('./messageBoard.js');
 const Comment = require('./comment.js');
 
-const groupSchema = mongoose.Schema({
+const groupSchema = new mongoose.Schema({
   groupName: { type: String, required: true },
   privacy: { type: String, required: true },
   size: { type: Number, default: 1 },

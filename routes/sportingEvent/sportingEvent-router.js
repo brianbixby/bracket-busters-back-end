@@ -1,7 +1,6 @@
 'use strict';
 
-const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:profile-router');
+const { Router} = require('express');
 const createError = require('http-errors');
 
 const SportingEvent = require('../../model/sportingEvent/sportingEvent.js');
@@ -11,9 +10,7 @@ const sportingEventRouter = module.exports = Router();
 
 // create a sporting event
 // http POST :3000/api/sportingEvent 'Authorization:Bearer TOKEN' sportingEventName='a' desc='a'
-sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/sportingEvent');
-
+sportingEventRouter.post('/api/sportingevent', bearerAuth, (req, res, next) => {
   const { sportingEventName, desc } = req.body;
   const message = !sportingEventName ? 'expected a sportingEventName'
     : !desc ? 'expected a desc'
@@ -30,8 +27,6 @@ sportingEventRouter.post('/api/sportingevent', bearerAuth, json(), (req, res, ne
 // fetch all sporting events
 // http GET :3000/api/sportingevents 'Authorization:Bearer TOKEN'
 sportingEventRouter.get('/api/sportingevents', (req, res, next) => {
-  debug('GET: /api/sportingevents');
-
   SportingEvent.find()
     .then(sportingEvents => {
       if(!sportingEvents)

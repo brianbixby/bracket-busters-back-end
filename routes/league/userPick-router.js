@@ -1,7 +1,6 @@
 'use strict';
 
-const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:userPick-router');
+const { Router } = require('express');
 const createError = require('http-errors');
 
 const UserPick = require('../../model/league/userPick.js');
@@ -11,9 +10,7 @@ const userPickRouter = module.exports = Router();
 
 // creates a userpick specific to a user, game and league
 // http POST :3000/api/league/:leagueID/userpick 'Authorization:Bearer token' gameID='gameID' pick='pickID' gameTime='2018-03-16 23:37:52-0700'
-userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/league/:leagueID/userpick');
-
+userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, (req, res, next) => {
   const { pick, gameID, gameTime } = req.body;
   const message = !pick ? 'expected a pick'
     : !gameID ? 'expected a gameID'
@@ -32,8 +29,6 @@ userPickRouter.post('/api/league/:leagueID/userpick', bearerAuth, json(), (req, 
 // fetches a userpick by ID
 // http GET :3000/api/userpick/:userPickID 'Authorization:Bearer token'
 userPickRouter.get('/api/userpick/:userPickID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/userpick/:userPickID');
-
   UserPick.findById(req.params.userPickID).populate({path: 'gameID', select: 'status winner loser homeTeam awayTeam homeScore awayScore', populate: {path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses'}})
     .then(userPick => {
       if(!userPick)
@@ -47,8 +42,6 @@ userPickRouter.get('/api/userpick/:userPickID', bearerAuth, (req, res, next) => 
 // retrieves all users picks in specific league for a user
 // http GET :3000/api/userpicks/:leagueID 'Authorization:Bearer token'
 userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
-  debug('GET: /api/userpicks');
-
   UserPick.find({ leagueID: req.params.leagueID, userID: req.user._id }).populate({path: 'gameID', select: 'status winner loser homeTeam awayTeam homeScore awayScore', populate: {path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses'}}).sort({ gameTime: -1 })
     .then(userPicks => {
       if(!userPicks)
@@ -60,9 +53,7 @@ userPickRouter.get('/api/userpicks/:leagueID', bearerAuth, (req, res, next) => {
 
 // updates a user pick
 // http PUT :3000/api/userpick/:userPickID 'Authorization:Bearer token' pick='pickID'
-userPickRouter.put('/api/userpick/:userPickID', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/userpick:userPickID');
-
+userPickRouter.put('/api/userpick/:userPickID', bearerAuth, (req, res, next) => {
   let userPickProperties = req.body.userID 
   || req.body.leagueID 
   || req.body.gameID 

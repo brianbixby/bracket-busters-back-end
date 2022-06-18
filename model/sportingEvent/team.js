@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 
-const teamSchema = mongoose.Schema({
+const teamSchema = new mongoose.Schema({
   teamName: { type: String, required: true, unique: true},
   teamCity: { type: String, required: true },
   image: { type: String, required: true },

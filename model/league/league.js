@@ -1,13 +1,12 @@
 'use strict';
 
 const mongoose = require('mongoose');
-mongoose.Promise = require('bluebird');
 const MessageBoard = require('./messageBoard.js');
 const Comment = require('./comment.js');
 const ScoreBoard = require('./scoreBoard.js');
 const UserPick = require('./userPick.js');
 
-const leagueSchema = mongoose.Schema({
+const leagueSchema = new mongoose.Schema({
   leagueName: { type: String, required: true },
   sportingEventID: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'sportingEvent' },
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'user' },

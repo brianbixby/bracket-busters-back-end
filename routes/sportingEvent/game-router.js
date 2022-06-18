@@ -1,7 +1,6 @@
 'use strict';
 
-const { Router, json } = require('express');
-const debug = require('debug')('bracketbusters:game-router');
+const { Router } = require('express');
 const createError = require('http-errors');
 
 const Team = require('../../model/sportingEvent/team.js');
@@ -14,9 +13,7 @@ const gameRouter = module.exports = Router();
 
 // create a new game
 // http POST :3000/api/sportingevent/:sportingeventID/game 'Authorization:Bearer token' homeTeam='id' awayTeam='id' dateTime='2018-05-13 23:37:52-0700'
-gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), (req, res, next) => {
-  debug('POST: /api/sportingevent/:sportingeventID/game');
-
+gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, (req, res, next) => {
   const { homeTeam, awayTeam, dateTime } = req.body;
   const message = !homeTeam ? 'expected a homeTeam'
     : !awayTeam ? 'expected a awayTeam'
@@ -34,9 +31,7 @@ gameRouter.post('/api/sportingevent/:sportingeventID/game', bearerAuth, json(), 
 });
 
 // fetch all games in that game ID's are not in req.body
-gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, next) => {
-  debug('POST:/api/games/:sportingEventID');
-
+gameRouter.post('/api/games/:sportingEventID', bearerAuth, (req, res, next) => {
   Game.find( { sportingEventID: req.params.sportingEventID, _id: { $nin: req.body[0] }}).populate({path: 'awayTeam homeTeam', select: 'teamName teamCity image color wins losses starPlayer starPlayerImage'}).sort({ dateTime: 1 })
     .then(games => {
       if(!games)
@@ -49,8 +44,6 @@ gameRouter.post('/api/games/:sportingEventID', bearerAuth, json(), (req, res, ne
 // fetch all games
 // http GET :3000/api/games 'Authorization:Bearer token'
 gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
-  debug('GET: /api/games');
-
   Game.find()
     .then(games => {
       if(!games)
@@ -62,9 +55,7 @@ gameRouter.get('/api/games', bearerAuth, (req, res, next) => {
 
 // update a game by ID
 // http PUT :3000/api/game/gameID 'Authorization:Bearer token' gameID='game._id' winner='team._id' loser='team._id' homeScore=50 awayScore=40 status='played'
-gameRouter.put('/api/game/:gameID', bearerAuth, json(), (req, res, next) => {
-  debug('PUT: /api/game/:gameID');
-
+gameRouter.put('/api/game/:gameID', bearerAuth, (req, res, next) => {
   let gameProperties = req.body.homeTeam 
   || req.body.awayTeam
   || req.body.dateTime
